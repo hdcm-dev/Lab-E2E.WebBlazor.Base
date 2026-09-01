@@ -427,3 +427,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# La evidencia de verificación se versiona completa, incluido su log
+!evidencia/**/*.log
