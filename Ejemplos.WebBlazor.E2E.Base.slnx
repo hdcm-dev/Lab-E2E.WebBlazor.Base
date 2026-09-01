@@ -13,7 +13,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/WebBlazor.E2E.Base.HolaMundo/WebBlazor.E2E.Base.HolaMundo.csproj" />
-    <Project Path="WebBlazor.E2E.Base.Login/WebBlazor.E2E.Base.Login.csproj" Id="8cc3a6b6-9bce-432b-ab5f-f88654b30c5f" />
+    <Project Path="src/WebBlazor.E2E.Base.Login/WebBlazor.E2E.Base.Login.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/WebBlazor.E2E.Base.HolaMundo.E2ETests/WebBlazor.E2E.Base.HolaMundo.E2ETests.csproj" Id="0702ec90-8de3-4d01-8edf-aead3f504c86" />

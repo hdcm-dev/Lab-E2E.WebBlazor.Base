@@ -1,0 +1,60 @@
+﻿@page "/login"
+
+@using Microsoft.AspNetCore.Authentication;
+@using Microsoft.AspNetCore.Components;
+@using System.Security.Claims
+
+
+@layout DefaultLayout
+
+<h3>Login</h3>
+
+<EditForm method="post" Model="_loginViewModel" OnValidSubmit="OnValdiarLogin" FormNmae="LoginForm" >
+
+    <div>
+        <label class="form-label">Usuario</label>
+        <InputText class="form-control" @bind-Value="_loginViewModel.Usuario"></InputText>
+    </div>
+    <div>
+        <label class="form-label">Clave</label>
+        <InputText class="form-control" @bind-Value="_loginViewModel.Clave" type="password"></InputText>
+    </div>
+    <button class="btn btn-primary" type="submit">Ingresar</button>
+</EditForm>
+
+@code {
+
+    [SupplyParameterFromForm]
+    private LoginViewModel _loginViewModel { get; set; } = new();
+
+    //necesario para el acceso al contexto
+    [Inject] IHttpContextAccessor HttpContextAccessor { get; set; }
+
+    async private Task OnValdiarLogin()
+    {
+        #region verificar contraseña
+        if (_loginViewModel.Usuario != "admin" || _loginViewModel.Clave != "admin") return;
+        #endregion
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, _loginViewModel.Usuario),
+            //new Claim(ClaimTypes.Role, "Admin")
+        };
+
+        var identity = new ClaimsIdentity(claims, "Cookies");
+        var principal = new ClaimsPrincipal(identity);
+
+        var httpContext = HttpContextAccessor.HttpContext;
+        if (httpContext != null)
+        {
+            await httpContext.SignInAsync("Cookies", principal);
+        }
+    }
+
+    class LoginViewModel
+    {
+        public string? Usuario { get; set; }
+        public string? Clave { get; set; }
+    }
+}

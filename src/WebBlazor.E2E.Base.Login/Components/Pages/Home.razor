@@ -1,6 +1,15 @@
 ﻿@page "/"
+@page "/index"
+
+@using Microsoft.AspNetCore.Authorization
 
 <PageTitle>Home</PageTitle>
+
+
+@attribute [Authorize]
+
+@rendermode InteractiveServer
+@attribute [StreamRendering]
 
 <h1>Hello, world!</h1>
 

@@ -1,8 +1,7 @@
-﻿
-using Microsoft.Playwright;
+﻿namespace WebBlazor.E2E.Base.Login.E2ETests;
 
-namespace WebBlazor.E2E.Base.HolaMundo.E2ETests;
-
+[Parallelizable(ParallelScope.Self)]
+[TestFixture]
 internal class LoginE2ETests : PageTest
 {
     string CookieDeSesion = "MiCookie";
@@ -16,7 +15,6 @@ internal class LoginE2ETests : PageTest
             {
                 Name = CookieDeSesion,
                 Value = Guid.NewGuid().ToString("n"),
-                Url = ServidorDeLaAplicacion.UrlBase
             }
         ]);
     }
