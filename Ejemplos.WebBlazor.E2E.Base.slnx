@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/github-workflows/">
+    <File Path=".github/workflows/e2e.yml" />
+  </Folder>
+  <Folder Name="/Guides/">
+    <File Path="Guides/E2E-Guides.md" />
+    <File Path="Guides/GitHub-Action.md" />
+  </Folder>
+  <Folder Name="/Guides/Imagenes/">
+    <File Path="Guides/Imagenes/Explorador-Pruebas.png" />
+    <File Path="Guides/Imagenes/Menu-Explorador-Pruebas.png" />
+    <File Path="Guides/Imagenes/Workload-Selected-NUnit-Test-PlayWright-Project.png" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/WebBlazor.E2E.Base.HolaMundo/WebBlazor.E2E.Base.HolaMundo.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/WebBlazor.E2E.Base.HolaMundo.E2ETests/WebBlazor.E2E.Base.HolaMundo.E2ETests.csproj" Id="0702ec90-8de3-4d01-8edf-aead3f504c86" />
+  </Folder>
+</Solution>
