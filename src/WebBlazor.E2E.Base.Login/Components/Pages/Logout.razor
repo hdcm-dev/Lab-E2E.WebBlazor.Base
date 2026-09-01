@@ -1,9 +1,40 @@
-﻿@page "/logout"
+@page "/logout"
+
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
+
+@attribute [Authorize]
+@layout DefaultLayout
+
+@* Igual que el login: SSR estático, porque SignOutAsync borra la cookie
+   escribiendo una cabecera en la respuesta. *@
 
 <h3>Logout</h3>
 
-@layout DefaultLayout
+<p>¿Desea cerrar la sesión?</p>
+
+@* formulario plano: no hay modelo que enlazar, sólo la acción *@
+<form method="post" @formname="LogoutForm" @onsubmit="OnCerrarSesionAsync">
+    <AntiforgeryToken />
+    <button data-testid="boton-cerrar-sesion" class="btn btn-primary" type="submit">Cerrar sesión</button>
+</form>
 
 @code {
 
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    async private Task OnCerrarSesionAsync()
+    {
+        if (HttpContext is null) return;
+
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        NavigationManager.NavigateTo("/login");
+    }
 }

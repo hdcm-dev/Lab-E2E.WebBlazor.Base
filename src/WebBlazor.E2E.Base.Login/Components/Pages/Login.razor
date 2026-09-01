@@ -1,60 +1,112 @@
-﻿@page "/login"
+@page "/login"
 
-@using Microsoft.AspNetCore.Authentication;
-@using Microsoft.AspNetCore.Components;
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.AspNetCore.Components
+@using System.ComponentModel.DataAnnotations
 @using System.Security.Claims
-
 
 @layout DefaultLayout
 
+@* Sin @rendermode: esta página debe renderizarse como SSR estático.
+   SignInAsync escribe la cabecera Set-Cookie, y eso sólo es posible
+   mientras la respuesta no haya comenzado. Con render interactivo
+   no hay HttpContext y el ingreso fallaría en silencio. *@
+
 <h3>Login</h3>
 
-<EditForm method="post" Model="_loginViewModel" OnValidSubmit="OnValdiarLogin" FormNmae="LoginForm" >
+<EditForm method="post" Model="_loginViewModel" OnValidSubmit="OnValidarLoginAsync" FormName="LoginForm">
+    <DataAnnotationsValidator />
 
-    <div>
-        <label class="form-label">Usuario</label>
-        <InputText class="form-control" @bind-Value="_loginViewModel.Usuario"></InputText>
+    <div class="mb-2">
+        <label class="form-label" for="usuario">Usuario</label>
+        <InputText id="usuario" data-testid="campo-usuario" class="form-control"
+                   @bind-Value="_loginViewModel!.Usuario" />
+        <ValidationMessage For="() => _loginViewModel!.Usuario" />
     </div>
-    <div>
-        <label class="form-label">Clave</label>
-        <InputText class="form-control" @bind-Value="_loginViewModel.Clave" type="password"></InputText>
+    <div class="mb-2">
+        <label class="form-label" for="clave">Clave</label>
+        <InputText id="clave" data-testid="campo-clave" class="form-control" type="password"
+                   @bind-Value="_loginViewModel!.Clave" />
+        <ValidationMessage For="() => _loginViewModel!.Clave" />
     </div>
-    <button class="btn btn-primary" type="submit">Ingresar</button>
+
+    @if (!string.IsNullOrEmpty(_error))
+    {
+        <div class="alert alert-danger" role="alert" data-testid="mensaje-error">@_error</div>
+    }
+
+    <button data-testid="boton-ingresar" class="btn btn-primary" type="submit">Ingresar</button>
 </EditForm>
 
 @code {
 
+    //sin inicializador: el enlace del POST lo sobrescribiría (BL0008)
     [SupplyParameterFromForm]
-    private LoginViewModel _loginViewModel { get; set; } = new();
+    private LoginViewModel? _loginViewModel { get; set; }
 
-    //necesario para el acceso al contexto
-    [Inject] IHttpContextAccessor HttpContextAccessor { get; set; }
+    [SupplyParameterFromQuery(Name = "returnurl")]
+    private string? ReturnUrl { get; set; }
 
-    async private Task OnValdiarLogin()
+    //el HttpContext del render estático llega por cascada; no hace falta IHttpContextAccessor
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    private string? _error;
+
+    protected override void OnInitialized() => _loginViewModel ??= new();
+
+    async private Task OnValidarLoginAsync()
     {
+        _error = null;
+
+        if (HttpContext is null)
+        {
+            //ocurre si la página se renderiza de forma interactiva: no hay dónde escribir la cookie
+            _error = "El ingreso sólo puede resolverse durante el render estático.";
+            return;
+        }
+
         #region verificar contraseña
-        if (_loginViewModel.Usuario != "admin" || _loginViewModel.Clave != "admin") return;
+        if (_loginViewModel?.Usuario != "admin" || _loginViewModel?.Clave != "admin")
+        {
+            _error = "Usuario o clave incorrectos.";
+            return;
+        }
         #endregion
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, _loginViewModel.Usuario),
+            new Claim(ClaimTypes.Name, _loginViewModel.Usuario!),
             //new Claim(ClaimTypes.Role, "Admin")
         };
 
-        var identity = new ClaimsIdentity(claims, "Cookies");
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
 
-        var httpContext = HttpContextAccessor.HttpContext;
-        if (httpContext != null)
-        {
-            await httpContext.SignInAsync("Cookies", principal);
-        }
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+        NavigationManager.NavigateTo(DestinoSeguro());
     }
+
+    //sólo se admiten rutas locales, para no habilitar un redirect abierto
+    private string DestinoSeguro()
+        => !string.IsNullOrEmpty(ReturnUrl)
+           && Uri.IsWellFormedUriString(ReturnUrl, UriKind.Relative)
+           && ReturnUrl.StartsWith('/')
+           && !ReturnUrl.StartsWith("//")
+            ? ReturnUrl
+            : "/";
 
     class LoginViewModel
     {
+        [Required(ErrorMessage = "El usuario es obligatorio.")]
         public string? Usuario { get; set; }
+
+        [Required(ErrorMessage = "La clave es obligatoria.")]
         public string? Clave { get; set; }
     }
 }

@@ -1,6 +1,19 @@
-﻿<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
     <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                @* el middleware ya redirige la petición inicial al login;
+                   esto cubre la navegación interactiva y la sesión vencida *@
+                <p data-testid="mensaje-no-autorizado">
+                    No tiene autorización para ver esta página. <a href="/login">Ingresar</a>.
+                </p>
+            </NotAuthorized>
+            <Authorizing>
+                <p>Verificando credenciales...</p>
+            </Authorizing>
+        </AuthorizeRouteView>
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>

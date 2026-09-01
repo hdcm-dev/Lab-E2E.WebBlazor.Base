@@ -26,15 +26,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 
-//para acceder al contexto httpcontext
-builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("SwaggerAccess", policy =>
-        policy.RequireAuthenticatedUser());
-});
-
 #endregion
 
 var app = builder.Build();
