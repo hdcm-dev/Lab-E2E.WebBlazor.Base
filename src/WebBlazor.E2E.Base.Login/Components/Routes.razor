@@ -1,19 +1,16 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
-
-<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
+<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Paginas.NoEncontrado)">
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
             <NotAuthorized>
-                @* el middleware ya redirige la petición inicial al login;
-                   esto cubre la navegación interactiva y la sesión vencida *@
-                <p data-testid="mensaje-no-autorizado">
-                    No tiene autorización para ver esta página. <a href="/login">Ingresar</a>.
-                </p>
+                @* Primera capa del guard: la del ruteo. Redirige a la superficie de
+                   acceso sin decir por qué, y reemplaza la entrada del historial
+                   para que el retroceso no devuelva a un limbo. *@
+                <Redireccion Destino="@($"/login?estado={CatalogoDeResultados.SesionRequerida}")" />
             </NotAuthorized>
             <Authorizing>
-                <p>Verificando credenciales...</p>
+                <p class="mq-caption">Verificando la sesión…</p>
             </Authorizing>
         </AuthorizeRouteView>
-        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        <FocusOnNavigate RouteData="routeData" Selector="#mq-main" />
     </Found>
 </Router>
