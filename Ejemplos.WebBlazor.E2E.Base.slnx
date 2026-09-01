@@ -5,6 +5,7 @@
   <Folder Name="/Guides/">
     <File Path="Guides/E2E-Guides.md" />
     <File Path="Guides/GitHub-Action.md" />
+    <File Path="Guides/Template-SDD-Aplicado.md" />
   </Folder>
   <Folder Name="/Guides/Imagenes/">
     <File Path="Guides/Imagenes/Explorador-Pruebas.png" />
