@@ -28,8 +28,8 @@ env:
   URL_BASE: ${{ inputs.url-base || '' }}
   RETENCION_DIAS: ${{ inputs.retencion-dias || 7 }}
   ARTEFACTO_APLICACION: aplicacion-publicada
-  PROYECTO_PRUEBAS: tests/MovilidadUrbana.E2ETests
-  PATH_PROJECT_FILE: src/MovilidadUrbana.Web/MovilidadUrbana.Web.csproj
+  PROYECTO_PRUEBAS: tests/MWebBlazor.E2E.Base.HolaMundo.E2ETests
+  PATH_PROJECT_FILE: src/WebBlazor.E2E.Base.HolaMundo/WebBlazor.E2E.Base.HolaMundo.csproj
 
 # jobs
 jobs:
