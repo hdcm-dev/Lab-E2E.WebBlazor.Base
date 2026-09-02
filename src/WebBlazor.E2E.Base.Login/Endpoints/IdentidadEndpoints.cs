@@ -36,8 +36,7 @@ public static class IdentidadEndpoints
             }
 
             // La cookie se emite acá, en el ciclo de request, fuera de todo circuito.
-            await contexto.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme, resultado.Principal);
+            await contexto.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, resultado.Principal);
 
             return Results.Redirect(DestinoSeguro(returnurl));
         });
