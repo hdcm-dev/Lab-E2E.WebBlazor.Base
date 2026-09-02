@@ -4,6 +4,9 @@ name: E2E
 # on
 on:
 
+  pull_request:
+    branches: [main]
+
   workflow_dispatch:
     inputs:
       navegadores:
