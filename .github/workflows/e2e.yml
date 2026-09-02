@@ -4,6 +4,9 @@ name: E2E
 # on
 on:
 
+  pull_request:
+    branches: [main]
+
   workflow_dispatch:
     inputs:
       navegadores:
@@ -146,7 +149,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ env.NAVEGADOR }}-${{ hashFiles('tests/MovilidadUrbana.E2ETests/MovilidadUrbana.E2ETests.csproj') }}
+          key: playwright-${{ runner.os }}-${{ env.NAVEGADOR }}-${{ hashFiles(format('{0}/*.csproj', env.PROYECTO_PRUEBAS)) }}
 
       - name: Instalar el navegador y sus dependencias del sistema
         # El CLI viene dentro del paquete Microsoft.Playwright y baja la build que corresponde a
@@ -168,7 +171,7 @@ jobs:
       - name: Devolver el permiso de ejecución
         # Los artefactos de Actions se empaquetan en zip y pierden el bit de ejecución.
         if: ${{ inputs.url-base == '' }}
-        run: chmod +x publicacion/MovilidadUrbana.Web
+        run: chmod +x "publicacion/$(basename "${PATH_PROJECT_FILE%.csproj}")"
 
       - name: Ejecutar las pruebas
         env:

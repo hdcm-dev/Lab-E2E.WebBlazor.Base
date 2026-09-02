@@ -1,10 +1,17 @@
 using WebBlazor.E2E.Base.HolaMundo.Components;
+using WebBlazor.E2E.Base.HolaMundo.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+#region servicios
+// Punto de composición: todo servicio se registra acá y en ningún otro archivo.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// La identidad de versión se resuelve una sola vez, en el host: la superficie no
+// la compone ni la lee de una constante de la vista.
+builder.Services.AddSingleton<IIdentidadDeVersion, IdentidadDeVersion>();
+#endregion
 
 var app = builder.Build();
 

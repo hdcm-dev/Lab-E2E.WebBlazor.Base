@@ -1,31 +1,47 @@
-﻿<script type="module" src="@Assets["Components/Layout/ReconnectModal.razor.js"]"></script>
+@* Reconexión del circuito, estilizada acorde a la marca y anunciada en una región
+   activa. El elemento conserva su identificador, sus clases de estado y el hueco
+   de la cuenta de segundos, porque son el contrato que el circuito conmuta; lo
+   que se reemplaza es el marcado de adentro. *@
+
+<script type="module" src="@Assets["Components/Layout/ReconnectModal.razor.js"]"></script>
 
 <dialog id="components-reconnect-modal" data-nosnippet>
-    <div class="components-reconnect-container">
-        <div class="components-rejoining-animation" aria-hidden="true">
-            <div></div>
-            <div></div>
-        </div>
-        <p class="components-reconnect-first-attempt-visible">
-            Rejoining the server...
+    <div class="mq-reconexion" role="status" aria-live="polite">
+        <p class="mq-banda mq-banda--atencion components-reconnect-first-attempt-visible">
+            <Icono Nombre="@Iconos.Alerta" />
+            Se perdió la conexión con el servicio. Estamos reconectando; lo que escribiste sigue acá.
         </p>
-        <p class="components-reconnect-repeated-attempt-visible">
-            Rejoin failed... trying again in <span id="components-seconds-to-next-attempt"></span> seconds.
+
+        <p class="mq-banda mq-banda--atencion components-reconnect-repeated-attempt-visible">
+            <Icono Nombre="@Iconos.Alerta" />
+            No pudimos reconectar. Lo intentamos de nuevo en
+            <span id="components-seconds-to-next-attempt"></span> segundos.
         </p>
-        <p class="components-reconnect-failed-visible">
-            Failed to rejoin.<br />Please retry or reload the page.
+
+        <p class="mq-banda mq-banda--error components-reconnect-failed-visible">
+            <Icono Nombre="@Iconos.Alerta" />
+            No pudimos reconectar con el servicio.
         </p>
-        <button id="components-reconnect-button" class="components-reconnect-failed-visible">
-            Retry
+
+        <p class="mq-banda mq-banda--atencion components-pause-visible">
+            <Icono Nombre="@Iconos.Alerta" />
+            El servicio dejó la sesión en pausa.
+        </p>
+
+        <p class="mq-banda mq-banda--error components-resume-failed-visible">
+            <Icono Nombre="@Iconos.Alerta" />
+            No pudimos reanudar la sesión.
+        </p>
+
+        @* Cada acción nombra el reintento concreto, no «Reintentar» a secas. *@
+        <button id="components-reconnect-button" type="button"
+                class="mq-btn mq-btn--secundario components-reconnect-failed-visible">
+            Reintentar la conexión
         </button>
-        <p class="components-pause-visible">
-            The session has been paused by the server.
-        </p>
-        <p class="components-resume-failed-visible">
-            Failed to resume the session.<br />Please retry or reload the page.
-        </p>
-        <button id="components-resume-button" class="components-pause-visible components-resume-failed-visible">
-            Resume
+
+        <button id="components-resume-button" type="button"
+                class="mq-btn mq-btn--primario components-pause-visible components-resume-failed-visible">
+            Reanudar la sesión
         </button>
     </div>
 </dialog>
