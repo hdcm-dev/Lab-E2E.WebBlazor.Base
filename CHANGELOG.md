@@ -9,17 +9,6 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
 
 ## [Sin publicar] - 2026-09-04
 
-### Cambiado
-
-- **Los dos documentos de caso pasan a exponerse por preguntas.** Cada criterio abre con la
-  pregunta que alguien realmente se hace —«¿Y si igual hago clic antes de tiempo?»—, sigue con la
-  respuesta en una línea y cierra con ejemplos contrastados. Un ejemplo correcto aislado no enseña
-  dónde está el límite; el par ✅/❌ sí, y el ⚠️ intermedio cubre el caso *cierto pero insuficiente*,
-  que es el que más se repite en la práctica. `Caso-HolaMundo-Page.MD` suma además §2.2 —las cinco
-  preguntas que se le hacen a una promesa—, §2.3 y §2.4 —seis superficies que las pasan y seis que
-  no, cada una con qué falla y qué hacer— y §4.5 —cuándo hace falta un testigo y cuándo no, porque
-  `InteractiveServer` no lo implica por sí solo—.
-
 ### Añadido
 
 - **`tests/WebBlazor.E2E.Base.Login.E2ETests/LoginE2ETests.cs`** — nueve casos sobre la superficie
@@ -36,6 +25,29 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
   se deriva de una sola diferencia —si la superficie abre circuito o no—. La interactiva necesita
   el testigo de hidratación; la de acceso es SSR estático, su formulario viaja por POST y las
   esperas de Playwright ya cubren las navegaciones.
+- **`/IA/PROMPTs/IA.Prompts/Base/Estilo-Redaccion-Explicativo.md`** *(fuera de este repositorio)* —
+  el estilo de estos dos documentos, destilado para que otros agentes lo repliquen en otro
+  contexto: el patrón de exposición, la estructura numerada y citable, la voz, y la postura que
+  distingue lo verificado de lo razonado y de lo supuesto. Los dos documentos de caso quedan
+  declarados ahí como corpus de referencia, así que **cambiarlos de forma cambia el ejemplo**.
+
+### Cambiado
+
+- **Los dos documentos de caso pasan a exponerse por preguntas.** Cada criterio abre con la
+  pregunta que alguien realmente se hace —«¿Y si igual hago clic antes de tiempo?»—, sigue con la
+  respuesta en una línea y cierra con ejemplos contrastados. Un ejemplo correcto aislado no enseña
+  dónde está el límite; el par ✅/❌ sí, y el ⚠️ intermedio cubre el caso *cierto pero insuficiente*,
+  que es el que más se repite en la práctica. `Caso-HolaMundo-Page.MD` suma además §2.2 —las cinco
+  preguntas que se le hacen a una promesa—, §2.3 y §2.4 —seis superficies que las pasan y seis que
+  no, cada una con qué falla y qué hacer— y §4.5 —cuándo hace falta un testigo y cuándo no, porque
+  `InteractiveServer` no lo implica por sí solo—.
+- **La solución se pone al día con lo que hay en el árbol.** `Ejemplos.WebBlazor.E2E.Base.slnx`
+  suma los dos documentos nuevos a la carpeta `/Guides/`. La solución declara los archivos sueltos
+  uno por uno, así que un documento que no se agrega existe en el repositorio pero no en el
+  explorador de quien abre la solución: queda escrito y sin leer.
+- **`HolaMundoE2ETest`** pasa a apoyarse en `PruebaDeSuperficie`, y el `Using` global de
+  `Microsoft.Playwright` se declara en el csproj junto a los que ya estaban, en vez de repetir el
+  `using` en cada archivo.
 
 ### Encontrado, no resuelto
 
@@ -47,16 +59,6 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
   la entrada `SesionRequerida` del catálogo —«Ingresá para ver esa superficie.»— nunca se le muestre
   a nadie. Las pruebas se ajustaron a lo que la aplicación hace: corregir el comportamiento es una
   decisión de diseño y no la toma la prueba.
-
-### Cambiado
-
-- **La solución se pone al día con lo que hay en el árbol.** `Ejemplos.WebBlazor.E2E.Base.slnx`
-  suma los dos documentos nuevos a la carpeta `/Guides/`. La solución declara los archivos sueltos
-  uno por uno, así que un documento que no se agrega existe en el repositorio pero no en el
-  explorador de quien abre la solución: queda escrito y sin leer.
-- **`HolaMundoE2ETest`** pasa a apoyarse en `PruebaDeSuperficie`, y el `Using` global de
-  `Microsoft.Playwright` se declara en el csproj junto a los que ya estaban, en vez de repetir el
-  `using` en cada archivo.
 
 ## [Sin publicar] - 2026-09-03
 
