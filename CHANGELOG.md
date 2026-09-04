@@ -36,6 +36,13 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
 - **`.gitignore`** ignora los artefactos que deja el contenedor de pruebas dentro del árbol:
   `.contenedor-home/`, `.nuget/` y `.navegadores/`.
 
+- **La solución se pone al día con lo que hay en el árbol.**
+  `Ejemplos.WebBlazor.E2E.Base.slnx` seguía declarando `Guides/GitHub-Action.md`, que ya no existe
+  —quedaba como enlace roto en Visual Studio—, y no declaraba `Guides/Notas.GitHub.md`, que lo
+  reemplaza. Se suman además los archivos que nunca habían estado: `README.md` y `CHANGELOG.md` en
+  un nodo `Solution Items`, y `scripts/pruebas.sh` en el suyo, que es el punto de entrada para
+  correr las pruebas y hasta ahora había que buscarlo por fuera del explorador.
+
 ### Pendiente
 
 - `tests/WebBlazor.E2E.Base.Login.E2ETests` **no compila**: dos métodos `[SetUp]` en la misma clase.
