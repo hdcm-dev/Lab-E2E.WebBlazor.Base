@@ -12,6 +12,7 @@ La tabla de arriba dice de qué trata cada capítulo; esta lista lleva directo a
 
 - **[1. Creación del proyecto](#1-creacion-del-proyecto)**
 - **[2. Ejemplo: Hola Mundo!](#2-ejemplo-hola-mundo)**
+- **[2.1 El testigo de hidratación](#el-testigo-de-hidratacion)**
 - **[3. Anexos](#3-anexos)**
 
 ---
@@ -155,6 +156,70 @@ public class HolaMundoE2ETests: PageTest
     }
 }
 ```
+
+### El testigo de hidratación
+
+Una superficie `InteractiveServer` llega a la pantalla **dos veces**. Primero el
+servidor manda el HTML ya armado: se ve completo, pero es una foto. Los manejadores
+—`@onclick`, `@bind-Value`, el `EditForm`— viven del lado del servidor y todavía no
+hay línea que los conecte. Recién cuando el navegador baja `blazor.web.js` y abre el
+WebSocket —el *circuito*— Blazor adopta ese marcado y lo conecta. **Eso es hidratar.**
+
+Entre las dos hay una ventana de decenas o cientos de milisegundos donde la pantalla
+parece lista y está muerta. Ahí está la trampa para Playwright: antes de cada clic
+verifica que el elemento exista, sea visible, esté habilitado y esté quieto, y en esa
+ventana **las cuatro cosas se cumplen**. Hace clic, nadie lo escucha, y no reintenta:
+desde su punto de vista el clic salió bien. El fracaso aparece después, en la
+aserción, con un mensaje que habla de otra cosa. Es el retrato del caso intermitente.
+
+Peor todavía cuando el control es un `type="submit"` dentro de un `EditForm`: sin
+hidratar el clic no es inerte, dispara el envío HTML de toda la vida y recarga la
+página entera.
+
+La solución es un **testigo**: un elemento del marcado cuyo único trabajo es afirmar
+en el DOM un hecho que la prueba no puede deducir mirando. Su condición de validez es
+una sola —**solo lo puede escribir código que ya corre del lado del circuito**—, y por
+eso su presencia no es una promesa sino una prueba.
+
+En el marcado:
+
+```razor
+<span class="mq-sr-only" data-testid="estado-app" data-interactivo="@_interactivo"></span>
+
+@code {
+    // Arranca en `false` y así viaja en el HTML del servidor: el testigo dice que no
+    // hay circuito hasta que lo haya.
+    private string _interactivo = "false";
+
+    // `OnAfterRender` solo corre del lado del circuito: si esto se ejecutó, la
+    // superficie ya responde. Es lo que hace del testigo una prueba y no una promesa.
+    protected override void OnAfterRender(bool primeraVez)
+    {
+        if (!primeraVez || _interactivo == "true") { return; }
+
+        _interactivo = "true";
+        StateHasChanged();
+    }
+}
+```
+
+Y en el `[SetUp]`, después de abrir la pantalla:
+
+```csharp
+await Expect(Page.GetByTestId("estado-app"))
+    .ToHaveAttributeAsync("data-interactivo", "true");
+```
+
+`Expect` **sí reintenta**, a diferencia del clic: la carrera se convierte en una espera
+con una condición explícita, y si algo se rompe de verdad el error nombra el problema
+real. El elemento está fuera de la vista (`mq-sr-only`) porque es un dato para
+máquinas; las aserciones de atributo no necesitan que sea visible.
+
+Es la misma disciplina que `campo-frase` y `campo-mensaje` —lo que la prueba necesita
+nombrar se declara en el marcado— aplicada a un estado en vez de a un control. Un
+matiz: el testigo prueba que **el circuito abrió**, no que un componente en particular
+quedó conectado. En una superficie con varias islas interactivas, cada isla quiere el
+suyo.
 
 ### Correr desde el epxlorador de pruebas
 

@@ -11,6 +11,19 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
 
 ### Añadido
 
+- **Testigo de hidratación** en las dos superficies `HolaMundo.razor`: un
+  `data-testid="estado-app"` con `data-interactivo`, que arranca en `false` en el HTML del servidor
+  y pasa a `true` desde `OnAfterRender`. Cierra la intermitencia registrada el 2026-09-02. La
+  superficie llega pintada antes de que el circuito abra, y en esa ventana el botón existe, es
+  visible, está habilitado y está quieto —las cuatro condiciones que Playwright verifica antes de
+  un clic—, pero no responde. Playwright hace clic, nadie lo escucha, y no reintenta: el fracaso
+  aparece después, en la aserción, con un mensaje que habla de otra cosa. `OnAfterRender` solo corre
+  del lado del circuito, así que el atributo no promete la interactividad, la prueba. Las dos
+  pruebas esperan ese estado antes de actuar, con un `Expect` —que sí reintenta— en el `[SetUp]`.
+  El capítulo *El testigo de hidratación* de `Guides/E2E-Guides.md` lo explica entero.
+- **`evidencia/2026-09-03-testigo-de-hidratacion/corrida.log`** — **0 de 8 corridas en rojo** en
+  cada proyecto, 16 de 16 en verde, contra el 1 de 8 del 2026-09-02.
+
 - **Contenedor de pruebas** en `.devcontainer/`: `Dockerfile` sobre la imagen oficial de Playwright
   —que ya trae las librerías de sistema de los navegadores— más el SDK de .NET 10 y `libnss3-tools`.
   Ese último no es un detalle: sin `certutil`, `dotnet dev-certs https --trust` no puede escribir en
@@ -32,6 +45,16 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
   esa máquina. Queda anotada la opción de *Require approval for fork pull request workflows*.
 
 ### Cambiado
+
+- **`tests/WebBlazor.E2E.Base.Login.E2ETests/HolaMundoE2ETest.cs`** — el proyecto de pruebas del
+  Login pasa a compilar y a correr en verde. Tenía dos `[SetUp]` con el mismo nombre; fabricaba a
+  mano una cookie `MiCookie` con un GUID, que no podía autenticar nada —la sesión real es la cookie
+  `auth_token`, `HttpOnly` y **firmada por el servidor**—; navegaba a `7071`, que es la URL del otro
+  proyecto; y esperaba un `estado-app` que el marcado nunca declaró. Ahora el ingreso se hace por la
+  superficie —que es el circuito que la aplicación ofrece— y la cookie la emite el servidor al
+  aceptar el POST. La URL base y el `IgnoreHTTPSErrors` del certificado de desarrollo se declaran
+  una sola vez, en `ContextOptions()`. La clase pasa de `internal` a `public`, que es como NUnit
+  descubre los casos.
 
 - **`.gitignore`** ignora los artefactos que deja el contenedor de pruebas dentro del árbol:
   `.contenedor-home/`, `.nuget/` y `.navegadores/`.

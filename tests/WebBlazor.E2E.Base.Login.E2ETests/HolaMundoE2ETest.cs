@@ -1,39 +1,43 @@
-﻿
-//para Coockie
+// `BrowserNewContextOptions` vive acá; el csproj solo declara global el de `.NUnit`.
 using Microsoft.Playwright;
 
 namespace WebBlazor.E2E.Base.Login.E2ETests;
 
-
-
+/// <summary>
+/// Lo que este proyecto agrega sobre el HolaMundo base es una sola cosa: la
+/// superficie está detrás de un acceso. Por eso el caso de prueba es el mismo, y
+/// lo único que cambia es cómo se llega al estado conocido del que parte.
+/// </summary>
 [Parallelizable(ParallelScope.Self)]
 [TestFixture]
-internal class HolaMundoE2ETest : PageTest
+public class HolaMundoE2ETest : PageTest
 {
-    string CookieDeSesion = "MiCookie";
+    private const string UrlBase = "https://localhost:7212";
 
-    static string UrlBase = "https://localhost:7212";
+    // El certificado de desarrollo no lo valida el navegador de Playwright.
+    public override BrowserNewContextOptions ContextOptions() =>
+        new() { IgnoreHTTPSErrors = true, BaseURL = UrlBase };
 
-    [SetUp]
-    async public Task Setup()
-    {
-        await Context.AddCookiesAsync(
-        [
-            new Cookie
-            {
-                Name = CookieDeSesion,
-                Value = Guid.NewGuid().ToString("n"),
-                Url = UrlBase
-            }
-        ]);
-    }
-
+    // Iniciar en estado conocido: la pantalla abierta y con la sesión establecida.
+    // El ingreso se hace por la superficie, que es el circuito que la aplicación
+    // ofrece; la cookie de sesión la emite el servidor al aceptar el POST y el
+    // contexto del navegador la conserva. No se fabrica acá: una cookie inventada
+    // no está firmada y el guard la rechaza.
     [SetUp]
     public async Task Setup()
     {
-        await Page.GotoAsync("https://localhost:7071/HolaMundo");
+        await Page.GotoAsync("/login");
+        await Page.GetByTestId("campo-usuario").FillAsync("admin");
+        await Page.GetByTestId("campo-clave").FillAsync("admin");
+        await Page.GetByTestId("boton-ingresar").ClickAsync();
+
         await Page.GotoAsync("/HolaMundo");
-        await Expect(Page.GetByTestId("estado-app")).ToHaveAttributeAsync("data-interactivo", "true");
+
+        // La superficie llega pintada antes de que el circuito abra, y en esa ventana
+        // el botón se ve y se puede clickear pero no responde. `Expect` reintenta:
+        // la prueba queda detenida hasta que la superficie declara que ya es interactiva.
+        await Expect(Page.GetByTestId("estado-app"))
+            .ToHaveAttributeAsync("data-interactivo", "true");
     }
 
     [Test]
@@ -44,7 +48,6 @@ internal class HolaMundoE2ETest : PageTest
 
         await Page.GetByTestId("campo-frase").FillAsync(frase);
         await Page.GetByTestId("boton-mostrar-frase").ClickAsync();
-        //await Expect(Page.GetByTestId("campo-mensaje")).ToHaveValueAsync(frase);
         await Expect(Page.GetByTestId("campo-mensaje")).ToHaveTextAsync(frase);
     }
 }

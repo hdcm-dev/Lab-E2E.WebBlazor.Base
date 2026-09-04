@@ -8,6 +8,14 @@
 
 <PageTitle>Hola Mundo</PageTitle>
 
+@* Testigo de hidratación. La superficie llega pintada por el servidor antes de que
+   el circuito abra: en esa ventana los controles se ven y se pueden tocar, pero
+   todavía no responden. Este elemento afirma en el DOM algo que mirando la pantalla
+   no se puede deducir —que el circuito ya adoptó el marcado—, y solo lo puede
+   escribir el código que ya corre del lado interactivo. La prueba E2E espera este
+   estado antes de actuar. *@
+<span class="mq-sr-only" data-testid="estado-app" data-interactivo="@_interactivo"></span>
+
 <div class="mq-encabezado">
     <div>
         <h1>Hola Mundo</h1>
@@ -110,7 +118,21 @@
     private string _anuncio = string.Empty;
     private bool _procesando;
 
+    // Arranca en `false` y así viaja en el HTML del servidor: el testigo dice que no
+    // hay circuito hasta que lo haya.
+    private string _interactivo = "false";
+
     protected override void OnInitialized() => _contexto = new EditContext(_modelo);
+
+    // `OnAfterRender` solo corre del lado del circuito: si esto se ejecutó, la
+    // superficie ya responde. Es lo que hace del testigo una prueba y no una promesa.
+    protected override void OnAfterRender(bool primeraVez)
+    {
+        if (!primeraVez || _interactivo == "true") { return; }
+
+        _interactivo = "true";
+        StateHasChanged();
+    }
 
     private async Task MostrarLaFraseAsync()
     {

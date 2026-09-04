@@ -8,6 +8,12 @@ public class HolaMundoE2ETests : PageTest
     public async Task Setup()
     {
         await Page.GotoAsync("https://localhost:7071/HolaMundo");
+
+        // La superficie llega pintada antes de que el circuito abra, y en esa ventana
+        // el botón se ve y se puede clickear pero no responde. `Expect` reintenta:
+        // la prueba queda detenida hasta que la superficie declara que ya es interactiva.
+        await Expect(Page.GetByTestId("estado-app"))
+            .ToHaveAttributeAsync("data-interactivo", "true");
     }
 
     [Test]
