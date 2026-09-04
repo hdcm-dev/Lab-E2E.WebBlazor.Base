@@ -11,8 +11,8 @@ superficie como esta, y por qué el caso quedó como quedó.
 ## Índice
 
 - **[1. Definiciones](#1-definiciones)** — qué es una superficie, dónde está cada parte de
-  la definición en el archivo real, y cómo se relaciona con las historias, los casos de uso
-  y las maquetas
+  la definición en el archivo real, cómo se relaciona con las historias, los casos de uso y
+  las maquetas, y por qué sus estados no son superficies distintas
 - **[2. Qué promete esta superficie](#2-que-promete-esta-superficie)** — las cinco preguntas
   que se le hacen a una promesa, y doce superficies de ejemplo. Es la parte que **no depende
   de este proyecto**: sirve para cualquier pantalla.
@@ -28,7 +28,7 @@ superficie como esta, y por qué el caso quedó como quedó.
 
 ## 1. Definiciones
 
-Tres términos que se usan todo el tiempo más abajo. Conviene fijarlos primero.
+Cuatro términos que se usan todo el tiempo más abajo. Conviene fijarlos primero.
 
 ### 1.1 Superficie
 
@@ -135,13 +135,106 @@ una prueba»:
 > tanto, probar**. Una prueba E2E no verifica una historia: verifica la promesa de una
 > superficie, y varias de esas juntas sostienen la historia.
 
-### 1.2 Circuito
+### 1.2 Estado de una superficie
+
+**Uno de los desenlaces excluyentes en los que la superficie puede quedar.** Los estados
+**no son superficies distintas**: son representaciones distintas de la misma promesa, y
+la superficie es el marco que las ordena.
+
+#### ¿Un formulario con varios estados son varias superficies?
+
+**Respuesta: no. El corte es la promesa, no la apariencia.**
+
+Un formulario vacío, uno enviando, uno con error y uno con resultado se ven muy
+distintos —a veces no comparten ni un píxel—, y aun así son **la misma superficie**,
+porque la promesa no cambió: «escribo una frase y aparece» sigue siendo cierta en los
+cuatro momentos. Lo que cambia es *dónde está* la persona dentro de esa promesa.
+
+**La prueba de discriminación**, y es una sola pregunta:
+
+> **¿Cambia lo que la persona puede esperar, o solo lo que ve?**
+
+| Qué cambia | Qué es | Ejemplo |
+| --- | --- | --- |
+| Solo lo que ve | **Otro estado** | Aparece el esqueleto mientras se procesa |
+| Lo que puede hacer, **al servicio de la misma promesa** | **Otro estado** | El botón se deshabilita mientras envía |
+| Lo que puede **esperar** | **Otra superficie** | Un modal que promete «confirmo y se borra» |
+
+La segunda fila es la que más confunde: que se deshabilite un control no abre una
+superficie nueva. Sigue siendo el mismo trato, en otro momento.
+
+#### El marco que las ordena
+
+Esa intuición —**la superficie como marco estructurado donde se ordenan las
+representaciones**— no es una metáfora: en este proyecto está hecha código, en dos
+piezas.
+
+**El vocabulario**, en [`EstadoDeSuperficie.cs`](../src/WebBlazor.E2E.Base.HolaMundo/Theme/EstadoDeSuperficie.cs): diez estados con nombre, comunes
+a todas las superficies del proyecto. No los inventa cada pantalla; cada pantalla
+**elige de esa lista**.
+
+**El marco**, en [`HolaMundo.razor` 87–110](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L87-L110): un `@if / else if / else` con
+un bloque por estado. Excluyentes por construcción, y legibles los tres de un vistazo.
+
+| Estado | Qué se muestra | Línea |
+| --- | --- | --- |
+| `Enviando` | Un esqueleto | [90](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L90) |
+| `ConDatos` | La tarjeta con la frase | [94–103](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L94-L103) |
+| `Vacio` | El estado vacío, con qué hacer para salir de él | [107–108](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L107-L108) |
+| `ErrorDeEntrada` | Una banda, **fuera del marco** porque interrumpe | [29–36](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L29-L36) |
+
+La última fila muestra el límite de la regla: un estado que **interrumpe** en vez de
+ocupar el lugar del contenido va en su propio bloque, arriba. El marco ordena los
+estados del contenido, no todos los estados del mundo.
+
+#### Por qué los estados no son cosméticos
+
+El `<remarks>` de [`EstadoDeSuperficie.cs` 9–12](../src/WebBlazor.E2E.Base.HolaMundo/Theme/EstadoDeSuperficie.cs#L9-L12) lo dice mejor que
+cualquier explicación:
+
+> *«`FiltradoSinResultados` es un estado DISTINTO de `Vacio`: en el primero hay datos y
+> el filtro no encontró nada, y la acción es limpiar el filtro; en el segundo no hay
+> datos, y la acción es crear el primero. Confundirlos le ofrece a la persona la acción
+> equivocada.»*
+
+**Ahí está el criterio entero.** Dos estados son distintos cuando **la salida que se le
+ofrece a la persona es distinta**. Si la salida es la misma, la distinción es
+decorativa y sobra. Por eso el catálogo tiene diez y no treinta.
+
+#### Tres cosas que se confunden con un estado
+
+| | Qué es | Ejemplo | Cómo se trata |
+| --- | --- | --- | --- |
+| **Estado** | En cuál de los desenlaces está **ahora** | `Enviando` | Un bloque en el marco |
+| **Situación** | Una condición del contexto, no del desenlace | Sin permisos; pantalla de 320px | Fuera del marco: guard, o CSS |
+| **Variante** | La misma superficie con otro contenido | Alta vs. edición del mismo formulario | Un parámetro, no un estado |
+
+Meter una situación en el `enum` de estados es el error más común, y se nota enseguida:
+aparece un estado que **nunca es consecuencia de una acción de la persona**.
+
+#### ¿Cada estado es un caso de prueba?
+
+**Respuesta: no. Solo los que la persona puede provocar y que prometen algo.**
+
+| Estado | ¿Caso propio? | Por qué |
+| --- | --- | --- |
+| `ConDatos` | **Sí** | Es la promesa central |
+| `ErrorDeEntrada` | **Sí** | Es un flujo alterno con su propia promesa |
+| `Vacio` | No aparte | El `[SetUp]` ya pasa por él; verificarlo suma un caso que falla junto con el otro |
+| `Enviando` | No | Es un tránsito. Afirmarlo obliga a atrapar un instante, y ahí nacen las pruebas intermitentes |
+| `Indisponible` | **No aplica** | La frase no viaja a ningún servicio: no hay servicio que pueda no responder |
+
+Las últimas tres filas son las tres clases de ausencia de la §6 —*no aparte*, *no* y *no
+aplica*— y conviene no confundirlas: la primera es una decisión de economía, la segunda
+de método, la tercera de diseño.
+
+### 1.3 Circuito
 
 **La conexión WebSocket entre el navegador y el servidor** que hace que una
 superficie Blazor Server reaccione. Los manejadores —`@onclick`, `@bind-Value`— no
 viven en el navegador: viven en el servidor, del otro lado del circuito.
 
-### 1.3 Identificador de prueba
+### 1.4 Identificador de prueba
 
 **Un `data-testid` declarado en el marcado, junto al control que nombra.** Es un
 nombre estable y explícito, puesto ahí *para* que la prueba lo use. La alternativa

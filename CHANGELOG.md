@@ -33,6 +33,17 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
 
 ### Cambiado
 
+- **Se define «estado de una superficie», que faltaba.** Los estados **no son superficies
+  distintas**: son representaciones distintas de la misma promesa, y la superficie es el marco que
+  las ordena. El corte entre superficies es la promesa, no la apariencia, y se discrimina con una
+  sola pregunta —¿cambia lo que la persona puede **esperar**, o solo lo que ve?—. Ese marco no es
+  una metáfora: está hecho código en dos piezas, el vocabulario de `EstadoDeSuperficie.cs` y el
+  `@if / else if / else` de las líneas 87–110. Queda anotado por qué los estados no son cosméticos
+  —dos son distintos cuando la salida que se le ofrece a la persona es distinta, que es lo que el
+  `<remarks>` del enum ya decía sobre `Vacio` y `FiltradoSinResultados`—, las tres cosas que se
+  confunden con un estado —situación y variante no lo son—, y cuáles de los estados merecen caso
+  propio: `Enviando` no, porque afirmarlo obliga a atrapar un instante y ahí nacen las pruebas
+  intermitentes.
 - **La definición de «superficie» queda anclada al archivo real.** Decía qué es una superficie
   —lo que la persona ve, lo que puede hacer y en qué estados puede quedar— sin señalar dónde está
   cada una de esas tres partes, así que se entendía al leerla y no se sabía aplicarla. Ahora cada
