@@ -15,8 +15,7 @@ public class HolaMundoE2ETest : PageTest
     private const string UrlBase = "https://localhost:7212";
 
     // El certificado de desarrollo no lo valida el navegador de Playwright.
-    public override BrowserNewContextOptions ContextOptions() =>
-        new() { IgnoreHTTPSErrors = true, BaseURL = UrlBase };
+    public override BrowserNewContextOptions ContextOptions() =>  new() { IgnoreHTTPSErrors = true, BaseURL = UrlBase };
 
     // Iniciar en estado conocido: la pantalla abierta y con la sesión establecida.
     // El ingreso se hace por la superficie, que es el circuito que la aplicación
@@ -36,8 +35,7 @@ public class HolaMundoE2ETest : PageTest
         // La superficie llega pintada antes de que el circuito abra, y en esa ventana
         // el botón se ve y se puede clickear pero no responde. `Expect` reintenta:
         // la prueba queda detenida hasta que la superficie declara que ya es interactiva.
-        await Expect(Page.GetByTestId("estado-app"))
-            .ToHaveAttributeAsync("data-interactivo", "true");
+        await Expect(Page.GetByTestId("estado-app")).ToHaveAttributeAsync("data-interactivo", "true");
     }
 
     [Test]
