@@ -39,6 +39,10 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
 
 ### Cambiado
 
+- **La solución se pone al día con lo que hay en el árbol.** `Ejemplos.WebBlazor.E2E.Base.slnx`
+  suma los dos documentos nuevos a la carpeta `/Guides/`. La solución declara los archivos sueltos
+  uno por uno, así que un documento que no se agrega existe en el repositorio pero no en el
+  explorador de quien abre la solución: queda escrito y sin leer.
 - **`HolaMundoE2ETest`** pasa a apoyarse en `PruebaDeSuperficie`, y el `Using` global de
   `Microsoft.Playwright` se declara en el csproj junto a los que ya estaban, en vez de repetir el
   `using` en cada archivo.
