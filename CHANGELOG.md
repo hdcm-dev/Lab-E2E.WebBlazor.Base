@@ -33,6 +33,20 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
 
 ### Cambiado
 
+- **Se distingue la promesa positiva de la negativa, y `Caso-Login-Page.md` desarrolla la suya.**
+  Puestas al lado, las dos promesas no tienen la misma forma: la del Hola Mundo es acción →
+  desenlace; la del acceso tiene dos mitades y **la segunda es negativa** —dice qué no se puede
+  llegar a saber—. Las cinco preguntas dan lo mismo en las dos, porque el método no cambia con el
+  dominio, pero la fila 5 delata el trabajo extra: esta promesa tiene **dos formas de ser falsa** y
+  la segunda no se parece a un error. De ahí salen dos cosas que no estaban escritas. La primera:
+  una promesa de acceso tiene **dos sujetos** —quien entra y quien está probando suerte—, y la
+  mitad del adversario es la que se olvida; queda como regla reusable y anclada a las tres piezas
+  del `src` que la sostienen. La segunda: una promesa negativa **no tiene estado** —no hay ningún
+  bloque del marcado que diga «acá no filtré información»—, vive en que dos estados sean
+  indistinguibles, y por eso se verifica comparando y no mirando. Eso convierte la técnica de §4.4
+  en una consecuencia en vez de una astucia, y explica el modo de falla que hay que temer: una
+  promesa positiva rota se nota porque algo no aparece; una negativa rota **no se nota nunca**,
+  porque el sistema sigue funcionando —solo que además está contando algo—.
 - **Se define «estado de una superficie», que faltaba.** Los estados **no son superficies
   distintas**: son representaciones distintas de la misma promesa, y la superficie es el marco que
   las ordena. El corte entre superficies es la promesa, no la apariencia, y se discrimina con una

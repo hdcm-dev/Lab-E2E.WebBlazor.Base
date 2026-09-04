@@ -259,6 +259,11 @@ Eso es todo. La superficie no consulta ningún servicio, no persiste nada y no n
 a ningún lado. Es deliberadamente pobre: existe para que el andamiaje de la prueba se
 vea sin ruido alrededor.
 
+Es además una promesa **positiva**: dice qué pasa. Las hay también **negativas** —dicen
+qué no se puede llegar a saber—, se prueban de otra manera y son las que más veces
+quedan sin caso; la del acceso tiene una, y está tratada en
+[§2.1 y §2.4 del caso de acceso](Caso-Login-Page.md#21-por-que-esta-frase-es-mas-larga-que-la-del-hola-mundo).
+
 ### 2.1 Por qué la frase va primero
 
 Porque **la prueba no inventa qué verificar: lo copia de la promesa**. Un caso E2E es
@@ -294,6 +299,13 @@ que es exactamente lo que una prueba E2E no hace.
 
 **Regla práctica:** si la frase menciona una clase, un método o un evento del framework,
 está escrita desde el lado equivocado.
+
+**El matiz: a veces hay más de un sujeto.** En una superficie con postura de seguridad,
+la promesa se escribe **dos veces** —una desde el usuario legítimo y otra desde quien no
+lo es—, y la segunda es la que se olvida. La de la superficie de acceso lo muestra: «con
+la credencial correcta se pasa» es la mitad del usuario; «lo que se dice no le enseña
+nada a quien está probando suerte» es la mitad del adversario. Está tratado en
+[§2.3 del caso de acceso](Caso-Login-Page.md#23-quien-es-el-sujeto-de-una-promesa-de-acceso).
 
 ---
 

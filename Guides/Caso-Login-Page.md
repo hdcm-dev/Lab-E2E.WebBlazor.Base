@@ -5,6 +5,20 @@
 **Base común:** `tests/WebBlazor.E2E.Base.Login.E2ETests/PruebaDeSuperficie.cs`
 **Qué tipo de superficie es:** SSR estático (**sin** `@rendermode`)
 
+## Índice
+
+- **[1. Definiciones](#1-definiciones)** — guard, credencial de sesión, rechazo indiferenciado
+- **[2. Qué promete esta superficie](#2-que-promete-esta-superficie)** — una promesa **negativa**:
+  por qué tiene dos sujetos y por qué no se puede verificar mirando
+- **[3. La diferencia que ordena todo el resto](#3-la-diferencia-que-ordena-todo-el-resto)** —
+  SSR frente a interactiva
+- **[4. Los criterios de diseño de estos casos](#4-los-criterios-de-diseno-de-estos-casos)**
+- **[5. El mapa de los casos](#5-el-mapa-de-los-casos)**
+- **[6. Un hallazgo que apareció al escribir estos casos](#6-un-hallazgo-que-aparecio-al-escribir-estos-casos)**
+- **[7. Lo que estos casos deliberadamente no prueban](#7-lo-que-estos-casos-deliberadamente-no-prueban)**
+- **[8. Cómo se corren](#8-como-se-corren)**
+- **[9. Los criterios, en una lista](#9-los-criterios-en-una-lista)**
+
 El caso hermano —la superficie interactiva— está en
 [`Caso-HolaMundo-Page.MD`](Caso-HolaMundo-Page.MD). Conviene leer los dos juntos:
 casi todo lo que cambia entre ellos se explica por una sola diferencia.
@@ -52,9 +66,97 @@ La segunda mitad de esa frase es lo interesante. Esta superficie no promete solo
 comportamiento: promete **un silencio**. Y un silencio también se prueba.
 
 > Cómo se llega a una frase así —y cómo se sabe si la que escribiste sirve— está en
-> [§2 del caso Hola Mundo](Caso-HolaMundo-Page.MD#2-que-promete-esta-superficie):
-> las cinco preguntas y los ejemplos de superficies que no la pasan. Es criterio
-> compartido y no se repite acá.
+> [§2 del caso Hola Mundo](Caso-HolaMundo-Page.MD#2-que-promete-esta-superficie): las cinco preguntas y
+> los ejemplos de superficies que no la pasan. Es criterio compartido y no se repite
+> acá; lo que sigue es ese criterio **aplicado a esta promesa**, que tiene otra forma.
+
+### 2.1 ¿Por qué esta frase es más larga que la del Hola Mundo?
+
+**Respuesta: porque no tiene la misma forma. Tiene dos mitades, y la segunda es negativa.**
+
+Puestas al lado se ve que la diferencia no es de longitud:
+
+| | Hola Mundo | Acceso |
+| --- | --- | --- |
+| **Estructura** | acción → desenlace | condición → desenlace, **+ lo que no se puede deducir** |
+| **Signo** | Positiva | Positiva **y negativa** |
+| **Qué afirma** | Que algo **ocurre** | Que algo ocurre **y que algo no se filtra** |
+| **Cómo se prueba** | Haciéndolo una vez | La primera mitad sí; **la segunda, comparando dos desenlaces** |
+
+Una **promesa positiva** dice qué pasa. Una **promesa negativa** dice qué no se puede
+llegar a saber. Las dos son legítimas y las dos se prueban, pero no de la misma manera —
+y confundirlas es lo que produce suites que verifican mucho y no detectan una fuga.
+
+### 2.2 ¿Las cinco preguntas dan lo mismo en las dos?
+
+**Respuesta: sí. El método no cambia con el dominio.**
+
+Las mismas cinco preguntas, aplicadas a las dos frases:
+
+| | Hola Mundo | Acceso |
+| --- | --- | --- |
+| **1. ¿Quién es el sujeto?** | «Escribo», «muestro» — la persona | «se pasa», «se dice» — la persona… **y alguien más**, §2.3 |
+| **2. ¿Se verifica mirando?** | Aparece la frase | Se ve la superficie protegida |
+| **3. ¿Cuántos «y»?** | Uno encadenado: el desenlace de la acción | Uno **real**: son dos promesas, y por eso dos grupos de casos |
+| **4. ¿Sobrevive al cambio?** | Si la frase se guardara en una base, sigue cierta | Si la sesión pasara a un token, sigue cierta |
+| **5. ¿Puede ser falsa?** | Si la frase no aparece | Si se pasa sin credencial, **o si los dos rechazos difieren** |
+
+La fila 5 muestra el trabajo extra: esta promesa tiene **dos formas de ser falsa**, y la
+segunda no se parece en nada a un error.
+
+### 2.3 ¿Quién es el sujeto de una promesa de acceso?
+
+**Respuesta: dos personas. Y la segunda es la que casi siempre falta.**
+
+La Pregunta 1 dice que el sujeto es la persona. Acá hay **dos**:
+
+| Sujeto | Qué le promete la superficie |
+| --- | --- |
+| Quien tiene la credencial | «Se pasa» |
+| **Quien está probando suerte** | «De acá no te llevás información» |
+
+La segunda mitad de la frase está escrita **desde el lado de quien no debería entrar**, y
+por eso se enuncia como un límite a lo que puede aprender, no como una funcionalidad.
+
+> **La regla, para reusar:** en una superficie con postura de seguridad, la promesa se
+> escribe **dos veces** —una desde el usuario legítimo y otra desde quien no lo es— y la
+> segunda es la que se olvida. Una superficie de acceso cuya única promesa es «con la
+> credencial correcta se pasa» está a mitad de camino, y su prueba también.
+
+Dónde aparece esa segunda promesa, hecha código:
+
+| Pieza | Cómo la sostiene |
+| --- | --- |
+| [`ServicioDeIdentidad.cs`](../src/WebBlazor.E2E.Base.Login/Servicios/ServicioDeIdentidad.cs) | Un solo desenlace de rechazo, para todas las formas de fallar |
+| [`CatalogoDeResultados.cs`](../src/WebBlazor.E2E.Base.Login/Servicios/CatalogoDeResultados.cs) | Un código sin entrada cae en el mensaje genérico, **nunca en el código crudo ni en la traza** |
+| [`IdentidadEndpoints.cs`](../src/WebBlazor.E2E.Base.Login/Endpoints/IdentidadEndpoints.cs) | Solo se admiten rutas locales: un destino externo sería una redirección abierta |
+
+Las tres son la misma promesa, sostenida en tres lugares distintos.
+
+### 2.4 ¿Por qué una promesa negativa no se puede mirar?
+
+**Respuesta: porque no tiene estado. Es una promesa sobre la *relación* entre estados.**
+
+Los estados de una superficie son bloques del marco que los ordena —[§1.2 del caso Hola
+Mundo](Caso-HolaMundo-Page.MD#12-estado-de-una-superficie)—, y cada uno se puede señalar con el dedo: acá
+está el vacío, acá el de carga, acá el error.
+
+**«No le enseña nada a quien está probando suerte» no tiene bloque.** No existe ningún
+lugar del marcado que diga *«acá no filtré información»*. La promesa no vive en un
+estado: vive en que **dos estados sean indistinguibles entre sí**.
+
+| Clase de promesa | Dónde se cumple | Cómo se verifica |
+| --- | --- | --- |
+| Positiva | **En un** estado | Mirando ese estado |
+| Negativa | **Entre dos** estados | Comparándolos |
+
+De ahí sale —y no como una astucia, sino como consecuencia— que el caso
+`ElRechazoNoDistingueQueCampoFallo` **no compare contra ningún texto literal** (§4.4).
+
+**Y de ahí sale el modo de falla que hay que temer.** Una promesa positiva rota se nota:
+algo no aparece. Una promesa negativa rota **no se nota nunca**, porque el sistema sigue
+funcionando perfectamente —solo que además está contando algo—. Si no hay un caso que la
+vigile, no hay nada más que la vigile.
 
 ---
 
@@ -198,6 +300,10 @@ Notá que **no se compara contra un texto literal**. Se comparan los dos desenla
 entre sí. Si mañana el mensaje cambia, este caso sigue siendo válido: lo que afirma no
 es *qué* dice, sino que **dice lo mismo en los dos casos**.
 
+Y no es una astucia de la prueba: es la única forma posible. La promesa **no vive en
+ningún estado** —vive en que dos estados sean indistinguibles—, así que no hay nada que
+mirar, solo algo que comparar. El porqué está en §2.4.
+
 ### 4.5 ¿Cuánto detalle se afirma?
 
 **Respuesta: lo que tendría que fallar con razón. Lo reversible se deja suelto.**
@@ -335,3 +441,7 @@ Cada uno es la respuesta corta a la pregunta que lo abre, arriba.
 5. **Afirmá lo que tendría que fallar con razón**; lo reversible, dejalo suelto.
 6. **Un caso, un motivo de falla.**
 7. **Cada promesa escrita en el `src` es un caso esperando a ser escrito.**
+8. **En una superficie de seguridad, escribí la promesa dos veces**: desde quien entra y
+   desde quien no debería. La segunda es la que falta.
+9. **Una promesa negativa rota no se nota nunca.** Si no hay un caso que la vigile, no hay
+   nada más que la vigile.
