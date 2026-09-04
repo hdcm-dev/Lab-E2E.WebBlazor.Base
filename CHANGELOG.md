@@ -7,6 +7,42 @@ Las entradas se agrupan por fecha y no por número de versión: lo que se public
 didáctico que se lee y se corre entero, no un artefacto que alguien instala en una versión
 determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el historial de commits.
 
+## [Sin publicar] - 2026-09-04
+
+### Añadido
+
+- **`tests/WebBlazor.E2E.Base.Login.E2ETests/LoginE2ETests.cs`** — nueve casos sobre la superficie
+  de acceso y el guard que la rodea: se pasa con la credencial correcta, se vuelve al destino
+  pedido, un `returnurl` externo no se honra, el rechazo se dice con el texto del catálogo, el
+  rechazo no distingue cuál de los dos campos falló, lo incompleto no se intenta, sin sesión hay
+  rebote, el rebote sirve, y la salida revoca el paso.
+- **`tests/WebBlazor.E2E.Base.Login.E2ETests/PruebaDeSuperficie.cs`** — la base común: cómo se abre
+  el navegador y cómo se llega a un estado de sesión conocido. Solo lo que no dice nada sobre
+  ningún caso en particular.
+- **`Guides/Caso-HolaMundo-Page.MD`** y **`Guides/Caso-Login-Page.md`** — cómo se **diseña** el caso
+  de cada superficie, que es lo que `E2E-Guides.md` no cubría: ahí está cómo se escribe una prueba,
+  acá con qué criterios se decide qué probar. Se leen juntos: casi todo lo que cambia entre ellos
+  se deriva de una sola diferencia —si la superficie abre circuito o no—. La interactiva necesita
+  el testigo de hidratación; la de acceso es SSR estático, su formulario viaja por POST y las
+  esperas de Playwright ya cubren las navegaciones.
+
+### Encontrado, no resuelto
+
+- **El `<NotAuthorized>` de `Routes.razor` es camino muerto** para las páginas con `[Authorize]`.
+  El caso 7 se escribió afirmando `/login?estado=sesion-requerida` —lo que produce el
+  `<Redireccion>`— y falló: la aplicación produce `/login?returnurl=%2FHolaMundo`. La capa del
+  guard que efectivamente actúa es el middleware de cookies, con su `LoginPath` y su
+  `ReturnUrlParameter`, que corta antes de que el `Router` evalúe su `<NotAuthorized>`. De ahí que
+  la entrada `SesionRequerida` del catálogo —«Ingresá para ver esa superficie.»— nunca se le muestre
+  a nadie. Las pruebas se ajustaron a lo que la aplicación hace: corregir el comportamiento es una
+  decisión de diseño y no la toma la prueba.
+
+### Cambiado
+
+- **`HolaMundoE2ETest`** pasa a apoyarse en `PruebaDeSuperficie`, y el `Using` global de
+  `Microsoft.Playwright` se declara en el csproj junto a los que ya estaban, en vez de repetir el
+  `using` en cada archivo.
+
 ## [Sin publicar] - 2026-09-03
 
 ### Añadido

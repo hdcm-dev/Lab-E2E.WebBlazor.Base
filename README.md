@@ -18,5 +18,9 @@ la corrida, en [`evidencia/2026-09-01-aplicacion-template/`](evidencia/2026-09-0
 ## Guías
 
 - [`Guides/E2E-Guides.md`](Guides/E2E-Guides.md) — cómo se escriben y se corren las pruebas.
+- [`Guides/Caso-HolaMundo-Page.MD`](Guides/Caso-HolaMundo-Page.MD) — cómo se diseña el caso de
+  una superficie **interactiva**, y por qué necesita un testigo de hidratación.
+- [`Guides/Caso-Login-Page.md`](Guides/Caso-Login-Page.md) — cómo se diseña el caso de una
+  superficie **SSR** detrás de un acceso, y por qué ahí el testigo no hace falta.
 - [`Guides/GitHub-Action.md`](Guides/GitHub-Action.md) — la corrida en CI.
 - [`Guides/Template-SDD-Aplicado.md`](Guides/Template-SDD-Aplicado.md) — la forma constructiva de las superficies.

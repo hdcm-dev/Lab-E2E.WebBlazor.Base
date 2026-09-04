@@ -13,7 +13,8 @@ La tabla de arriba dice de qué trata cada capítulo; esta lista lleva directo a
 - **[1. Creación del proyecto](#1-creacion-del-proyecto)**
 - **[2. Ejemplo: Hola Mundo!](#2-ejemplo-hola-mundo)**
 - **[2.1 El testigo de hidratación](#el-testigo-de-hidratacion)**
-- **[3. Anexos](#3-anexos)**
+- **[3. Cómo se diseña un caso](#3-como-se-disena-un-caso)**
+- **[4. Anexos](#4-anexos)**
 
 ---
 
@@ -506,7 +507,18 @@ jobs:
         run: exit 1
 ```
 
-## 3. Anexos
+## 3. Cómo se diseña un caso
+
+Este capítulo dice cómo se **escriben** las pruebas. Qué probar en cada superficie, y
+con qué criterios se decide, está tratado caso por caso:
+
+- [`Caso-HolaMundo-Page.MD`](Caso-HolaMundo-Page.MD) — una superficie interactiva.
+- [`Caso-Login-Page.md`](Caso-Login-Page.md) — una superficie SSR detrás de un acceso.
+
+Se leen mejor juntos: casi todo lo que cambia entre ellos se explica por una sola
+diferencia —si la superficie abre circuito o no—, y ese es el punto.
+
+## 4. Anexos
 
 > ¿Por qué HomepageHasPlaywrightInTitleAndGetStartedLinkLinkingtoTheIntroPage produjo una excepción?
 
