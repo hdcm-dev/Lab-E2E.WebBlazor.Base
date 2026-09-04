@@ -26,7 +26,7 @@ señaladas más abajo.
 
 ## 1. Qué encuadra este documento
 
-Los dos documentos de caso —[Hola Mundo](Caso-HolaMundo-Page.MD) y
+Los dos documentos de caso —[Hola Mundo](Caso-HolaMundo-Page.md) y
 [acceso](Caso-Login-Page.md)— usan un vocabulario propio: *superficie*, *promesa*,
 *estado*, *testigo*, *promesa negativa*. Ese vocabulario **no se inventó acá**. Casi todo
 viene de tres tradiciones que existen desde hace décadas, y el aporte de este laboratorio
@@ -101,7 +101,7 @@ entre **el sistema y una persona**, así que:
 **Y una diferencia que no es cosmética:** el contrato de Meyer se verifica *hacia adentro*
 —se puede inspeccionar el estado del objeto—; una promesa de superficie **solo se puede
 verificar desde afuera**, mirando lo que la persona vería. De ahí sale el criterio de
-[§3.1 del caso Hola Mundo](Caso-HolaMundo-Page.MD): no inspeccionar el campo privado.
+[§3.1 del caso Hola Mundo](Caso-HolaMundo-Page.md): no inspeccionar el campo privado.
 
 **El parentesco más cercano** es la *Promise Theory* de Mark Burgess, donde los agentes
 son autónomos y **prometen** en vez de recibir órdenes. Que la palabra elegida haya sido
@@ -282,7 +282,7 @@ deja de ser un documento que envejece aparte del código.
 > diseño.»*
 
 En BDD la frase es el punto de partida y se asume disponible. Acá **la dificultad para
-escribirla es información**: las [cinco preguntas](Caso-HolaMundo-Page.MD) y el catálogo
+escribirla es información**: las [cinco preguntas](Caso-HolaMundo-Page.md) y el catálogo
 de superficies que no las pasan existen para convertir esa dificultad en un diagnóstico
 —alcance, encuadre, altitud o diseño sin cerrar—.
 

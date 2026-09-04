@@ -25,7 +25,7 @@
 > traerlo, y en qué dos casos reinventamos algo que ya tenía nombre.
 
 El caso hermano —la superficie interactiva— está en
-[`Caso-HolaMundo-Page.MD`](Caso-HolaMundo-Page.MD). Conviene leer los dos juntos:
+[`Caso-HolaMundo-Page.md`](Caso-HolaMundo-Page.md). Conviene leer los dos juntos:
 casi todo lo que cambia entre ellos se explica por una sola diferencia.
 
 ---
@@ -71,7 +71,7 @@ La segunda mitad de esa frase es lo interesante. Esta superficie no promete solo
 comportamiento: promete **un silencio**. Y un silencio también se prueba.
 
 > Cómo se llega a una frase así —y cómo se sabe si la que escribiste sirve— está en
-> [§2 del caso Hola Mundo](Caso-HolaMundo-Page.MD#2-que-promete-esta-superficie): las cinco preguntas y
+> [§2 del caso Hola Mundo](Caso-HolaMundo-Page.md#2-que-promete-esta-superficie): las cinco preguntas y
 > los ejemplos de superficies que no la pasan. Es criterio compartido y no se repite
 > acá; lo que sigue es ese criterio **aplicado a esta promesa**, que tiene otra forma.
 
@@ -143,7 +143,7 @@ Las tres son la misma promesa, sostenida en tres lugares distintos.
 **Respuesta: porque no tiene estado. Es una promesa sobre la *relación* entre estados.**
 
 Los estados de una superficie son bloques del marco que los ordena —[§1.2 del caso Hola
-Mundo](Caso-HolaMundo-Page.MD#12-estado-de-una-superficie)—, y cada uno se puede señalar con el dedo: acá
+Mundo](Caso-HolaMundo-Page.md#12-estado-de-una-superficie)—, y cada uno se puede señalar con el dedo: acá
 está el vacío, acá el de carga, acá el error.
 
 **«No le enseña nada a quien está probando suerte» no tiene bloque.** No existe ningún
@@ -196,7 +196,7 @@ levanta.
 **No hay ventana de hidratación, así que no hay testigo que esperar.**
 
 En la superficie interactiva, el problema central era que el botón se ve listo antes
-de estarlo ([§4 del caso Hola Mundo](Caso-HolaMundo-Page.MD)). Acá ese problema no
+de estarlo ([§4 del caso Hola Mundo](Caso-HolaMundo-Page.md)). Acá ese problema no
 existe: el `<form method="post">` es HTML nativo, funciona con el primer byte que
 llega, y el envío es **una navegación** —de las que las esperas de Playwright ya
 cubren por sí solas—.

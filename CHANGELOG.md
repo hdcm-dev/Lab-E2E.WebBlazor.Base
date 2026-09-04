@@ -19,7 +19,7 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
 - **`tests/WebBlazor.E2E.Base.Login.E2ETests/PruebaDeSuperficie.cs`** — la base común: cómo se abre
   el navegador y cómo se llega a un estado de sesión conocido. Solo lo que no dice nada sobre
   ningún caso en particular.
-- **`Guides/Caso-HolaMundo-Page.MD`** y **`Guides/Caso-Login-Page.md`** — cómo se **diseña** el caso
+- **`Guides/Caso-HolaMundo-Page.md`** y **`Guides/Caso-Login-Page.md`** — cómo se **diseña** el caso
   de cada superficie, que es lo que `E2E-Guides.md` no cubría: ahí está cómo se escribe una prueba,
   acá con qué criterios se decide qué probar. Se leen juntos: casi todo lo que cambia entre ellos
   se deriva de una sola diferencia —si la superficie abre circuito o no—. La interactiva necesita
@@ -59,6 +59,18 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
 
 ### Cambiado
 
+- **Se corrige lo que decía sobre los asistentes de varios pasos, que estaba mal.** `Caso-HolaMundo`
+  afirmaba que «un asistente de cuatro pasos son cuatro superficies y un recorrido». Es falso como
+  regla general: depende de si cada paso **le entrega algo a la persona** —entonces sí es un
+  recorrido de superficies— o si los pasos son tramos de **un solo acto**, y entonces es **una**
+  superficie con estados. La señal para distinguirlos es si al abandonar en el medio queda algo
+  hecho. El error se descubrió al tratar un asistente real de tres pasos en el laboratorio hermano
+  —`Lab-E2E.WebBlazor`, `Guides/E2E-Guide/Caso-Encuesta-Page.md`—, cuyo propio componente declara
+  que es «solo para actos divisibles»: ninguno de sus tres pasos promete nada por sí solo, así que
+  es una sola superficie. Los dos documentos quedan enlazados entre sí.
+- **`Caso-HolaMundo-Page.MD` pasa a `Caso-HolaMundo-Page.md`**, y con él las seis referencias que lo
+  nombraban —`README.md`, `CHANGELOG.md`, el `.slnx` y los tres documentos de `Guides/`—. En Linux
+  la extensión distingue, así que media referencia sin actualizar es un enlace roto.
 - **Se distingue la promesa positiva de la negativa, y `Caso-Login-Page.md` desarrolla la suya.**
   Puestas al lado, las dos promesas no tienen la misma forma: la del Hola Mundo es acción →
   desenlace; la del acceso tiene dos mitades y **la segunda es negativa** —dice qué no se puede
@@ -99,7 +111,7 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
   pregunta que alguien realmente se hace —«¿Y si igual hago clic antes de tiempo?»—, sigue con la
   respuesta en una línea y cierra con ejemplos contrastados. Un ejemplo correcto aislado no enseña
   dónde está el límite; el par ✅/❌ sí, y el ⚠️ intermedio cubre el caso *cierto pero insuficiente*,
-  que es el que más se repite en la práctica. `Caso-HolaMundo-Page.MD` suma además §2.2 —las cinco
+  que es el que más se repite en la práctica. `Caso-HolaMundo-Page.md` suma además §2.2 —las cinco
   preguntas que se le hacen a una promesa—, §2.3 y §2.4 —seis superficies que las pasan y seis que
   no, cada una con qué falla y qué hacer— y §4.5 —cuándo hace falta un testigo y cuándo no, porque
   `InteractiveServer` no lo implica por sí solo—.

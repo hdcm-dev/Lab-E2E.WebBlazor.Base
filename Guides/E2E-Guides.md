@@ -512,7 +512,7 @@ jobs:
 Este capítulo dice cómo se **escriben** las pruebas. Qué probar en cada superficie, y
 con qué criterios se decide, está tratado caso por caso:
 
-- [`Caso-HolaMundo-Page.MD`](Caso-HolaMundo-Page.MD) — una superficie interactiva.
+- [`Caso-HolaMundo-Page.md`](Caso-HolaMundo-Page.md) — una superficie interactiva.
 - [`Caso-Login-Page.md`](Caso-Login-Page.md) — una superficie SSR detrás de un acceso.
 
 Se leen mejor juntos: casi todo lo que cambia entre ellos se explica por una sola

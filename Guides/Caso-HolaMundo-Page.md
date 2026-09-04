@@ -85,8 +85,11 @@ pantalla, ¿es una página?»:
   tiene ruta propia**.
 - Una ruta con **pestañas** que muestran cosas sin relación entre sí son **varias
   superficies** en una sola dirección.
-- Un **asistente de cuatro pasos** son cuatro superficies y un recorrido, aunque la
-  barra del navegador no cambie nunca.
+- Un **asistente de varios pasos** son varias superficies y un recorrido **si cada paso
+  le entrega algo a la persona**; si es un solo acto partido en tramos —un *acto
+  divisible*— es **una** superficie con estados. La señal: si al abandonar en el medio
+  queda algo hecho, eran superficies distintas. Está tratado con un caso real en
+  [`Caso-Encuesta-Page.md` §3](../../Lab-E2E.WebBlazor/Guides/E2E-Guide/Caso-Encuesta-Page.md).
 
 #### ¿Cómo sé dónde termina una superficie y empieza otra?
 
@@ -442,13 +445,27 @@ escribir, sino dos o tres.
 
 > «Completo el alta en cuatro pasos»
 
-**Qué falla:** ninguna pregunta, en realidad. Falla el **encuadre**: eso no es una
-superficie, es un **recorrido** que cruza cuatro superficies.
+**Qué falla:** la Pregunta 3, pero de una forma que hay que mirar de cerca, porque **la
+respuesta depende de algo que la frase no dice**.
 
-**Qué hacer:** las dos cosas, y por separado. Cada paso tiene su promesa —«sin el
-documento no me deja avanzar»— y el recorrido completo tiene la suya —«completo los
-cuatro pasos y el socio queda dado de alta»—. Un solo caso largo que haga las dos cosas
-es el que después nadie sabe por qué falló.
+**Primero decidí qué tenés delante:**
+
+| | Qué es | Cuántas superficies |
+| --- | --- | --- |
+| Cada paso **le entrega algo** a la persona antes del siguiente | Un **recorrido** | Varias, más el recorrido |
+| Los pasos son tramos de **un solo acto** | Un **acto divisible** | **Una**, con estados |
+
+**La señal más confiable:** si al abandonar en el medio **queda algo hecho**, eran
+superficies distintas. Si no queda nada, era una sola.
+
+**Qué hacer.** Si es un recorrido: cada paso tiene su promesa —«sin el documento no me
+deja avanzar»— y el recorrido completo tiene la suya, y van por separado, porque un solo
+caso largo que haga las dos cosas es el que después nadie sabe por qué falló. Si es un
+acto divisible: **una** superficie, y los pasos son estados suyos —§1.2—.
+
+Hay un caso real tratado entero, con un asistente de tres pasos que resulta ser **una
+sola superficie**, en
+[`Caso-Encuesta-Page.md`](../../Lab-E2E.WebBlazor/Guides/E2E-Guide/Caso-Encuesta-Page.md).
 
 ---
 
