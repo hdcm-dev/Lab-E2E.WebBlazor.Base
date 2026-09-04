@@ -24,6 +24,12 @@ superficie como esta, y por qué el caso quedó como quedó.
 - **[8. El criterio, en una línea](#8-el-criterio-en-una-linea)**
 - **[9. Y en la superficie de al lado](#9-y-en-la-superficie-de-al-lado)**
 
+> **De dónde viene todo esto:** el vocabulario de este documento —superficie, promesa,
+> estado, testigo— no se inventó acá. Su procedencia está en
+> [Marco-La-Superficie-Verificable.md](Marco-La-Superficie-Verificable.md): qué concepto viene de qué tradición, qué se le cambió al traerlo, y en qué
+> dos casos reinventamos algo que ya estaba formalizado —el testigo de hidratación es un
+> `IdlingResource` de Espresso hecho a mano—.
+
 ---
 
 ## 1. Definiciones

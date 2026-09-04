@@ -19,6 +19,11 @@
 - **[8. Cómo se corren](#8-como-se-corren)**
 - **[9. Los criterios, en una lista](#9-los-criterios-en-una-lista)**
 
+> **De dónde viene todo esto:** el vocabulario de este documento —promesa, superficie,
+> estado, promesa negativa— tiene procedencia, y está en
+> [Marco-La-Superficie-Verificable.md](Marco-La-Superficie-Verificable.md). Ahí se dice qué concepto viene de qué tradición, qué se le cambió al
+> traerlo, y en qué dos casos reinventamos algo que ya tenía nombre.
+
 El caso hermano —la superficie interactiva— está en
 [`Caso-HolaMundo-Page.MD`](Caso-HolaMundo-Page.MD). Conviene leer los dos juntos:
 casi todo lo que cambia entre ellos se explica por una sola diferencia.
@@ -157,6 +162,14 @@ De ahí sale —y no como una astucia, sino como consecuencia— que el caso
 algo no aparece. Una promesa negativa rota **no se nota nunca**, porque el sistema sigue
 funcionando perfectamente —solo que además está contando algo—. Si no hay un caso que la
 vigile, no hay nada más que la vigile.
+
+> **Esto tiene nombre, y no lo inventamos acá.** Una propiedad que no se puede decidir
+> mirando **una** ejecución sino un conjunto de ellas es una **hiperpropiedad** (Clarkson
+> y Schneider, 2008); el caso concreto de «el observador no debe poder distinguir dos
+> ejecuciones» es la **no-interferencia** (Goguen y Meseguer, 1982), y su forma más
+> simple —la que se decide con **dos** trazas— se llama **2-safety**. El caso de §4.4
+> ejecuta exactamente dos ingresos y los compara: es una prueba de 2-safety escrita a
+> mano. La procedencia completa está en [Marco-La-Superficie-Verificable.md](Marco-La-Superficie-Verificable.md#33-el-hallazgo-la-promesa-negativa-es-una-hiperpropiedad).
 
 ---
 

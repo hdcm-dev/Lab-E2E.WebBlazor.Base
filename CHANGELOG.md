@@ -31,6 +31,32 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
   distingue lo verificado de lo razonado y de lo supuesto. Los dos documentos de caso quedan
   declarados ahí como corpus de referencia, así que **cambiarlos de forma cambia el ejemplo**.
 
+### Añadido
+
+- **`Guides/Marco-La-Superficie-Verificable.md`** — el encuadre de los dos documentos de caso.
+  Usan un vocabulario —promesa, superficie, estado, testigo— que **no se inventó acá**, y no decían
+  de dónde viene: el lector no podía ir más lejos por su cuenta, y quien escribe reinventa cosas
+  que ya están formalizadas. El método vive en la intersección de tres tradiciones que casi nunca
+  se cruzan porque ninguna tiene por objeto «la pantalla»: la **especificación y verificación
+  formal** (qué es una promesa y cómo se clasifica), el **diseño de interacción centrado en el uso**
+  (qué es una superficie y qué es un estado) y la **especificación ejecutable y la prueba**
+  (qué forma tiene un caso). Dos son de oficio y la tercera es académica, y es la que dio la
+  respuesta más precisa a la pregunta más difícil.
+- **Quedan señalados los dos casos en que reinventamos algo con nombre propio.** La «promesa
+  negativa» que no vive en un estado sino en que dos sean indistinguibles es una **hiperpropiedad**
+  (Clarkson y Schneider, 2008); el caso concreto es **no-interferencia** (Goguen y Meseguer, 1982)
+  y su forma más simple se llama **2-safety** —la que se decide con dos trazas—. El caso
+  `ElRechazoNoDistingueQueCampoFallo` ejecuta exactamente dos ingresos y los compara: es una prueba
+  de 2-safety escrita a mano. Y el testigo de hidratación es un **`IdlingResource` de Espresso**
+  hecho a mano: mismo problema, misma solución, otra plataforma. Saberlo convierte las dos técnicas
+  de astucias en consecuencias, y muestra sus límites —hay hiperpropiedades que necesitan más de
+  dos trazas y esta suite no las cubriría; el `IdlingResource` maneja tareas concurrentes y el
+  nuestro es un solo bit—.
+- **La bibliografía distingue lo verificado de lo citado de memoria.** Seis referencias se
+  contrastaron contra fuentes en línea y se dice qué se confirmó de cada una; el resto se declara
+  sin verificar. Un documento que presenta todas sus referencias con la misma seguridad obliga a
+  desconfiar de todas por igual.
+
 ### Cambiado
 
 - **Se distingue la promesa positiva de la negativa, y `Caso-Login-Page.md` desarrolla la suya.**
