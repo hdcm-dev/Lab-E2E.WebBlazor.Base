@@ -33,6 +33,17 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
 
 ### Cambiado
 
+- **La definición de «superficie» queda anclada al archivo real.** Decía qué es una superficie
+  —lo que la persona ve, lo que puede hacer y en qué estados puede quedar— sin señalar dónde está
+  cada una de esas tres partes, así que se entendía al leerla y no se sabía aplicarla. Ahora cada
+  parte apunta a su rango de líneas en `HolaMundo.razor`, y una segunda tabla ancla lo que la
+  definición **excluye**: los componentes, el chrome y la ruta. Se suma el criterio de corte —el
+  conjunto más chico de marcado con una promesa propia verificable de punta a punta— y la relación
+  con los otros artefactos que hablan de «la pantalla»: la historia dice *por qué*, el caso de uso
+  dice *por dónde* y aporta sus flujos alternos, la maqueta dice *cómo se ve* y casi siempre dibuja
+  un solo estado —de ahí que falten el vacío, el de carga y el de error—, y la superficie es el
+  corte donde eso se vuelve observable. Con las cardinalidades, que es donde se rompe la intuición
+  de «una historia, una pantalla, una prueba».
 - **Los dos documentos de caso pasan a exponerse por preguntas.** Cada criterio abre con la
   pregunta que alguien realmente se hace —«¿Y si igual hago clic antes de tiempo?»—, sigue con la
   respuesta en una línea y cierra con ejemplos contrastados. Un ejemplo correcto aislado no enseña

@@ -10,7 +10,9 @@ superficie como esta, y por qué el caso quedó como quedó.
 
 ## Índice
 
-- **[1. Definiciones](#1-definiciones)**
+- **[1. Definiciones](#1-definiciones)** — qué es una superficie, dónde está cada parte de
+  la definición en el archivo real, y cómo se relaciona con las historias, los casos de uso
+  y las maquetas
 - **[2. Qué promete esta superficie](#2-que-promete-esta-superficie)** — las cinco preguntas
   que se le hacen a una promesa, y doce superficies de ejemplo. Es la parte que **no depende
   de este proyecto**: sirve para cualquier pantalla.
@@ -33,6 +35,105 @@ Tres términos que se usan todo el tiempo más abajo. Conviene fijarlos primero.
 **La pantalla como unidad de diseño**: lo que la persona ve, lo que puede hacer y en
 qué estados puede quedar. No es «el componente» ni «la página»: un componente es una
 pieza de implementación, y una superficie es una promesa hecha a alguien.
+
+#### Dónde está cada parte de esa definición
+
+La definición es abstracta a propósito, pero **tiene una correspondencia física exacta**
+en el archivo. Estas son las tres partes en
+[`HolaMundo.razor`](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor):
+
+| La definición dice | En el archivo es | Líneas |
+| --- | --- | --- |
+| **lo que la persona ve** | El encabezado: el título y la bajada que enuncia de qué se trata | [19–24](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L19-L24) |
+| **lo que puede hacer** | El formulario: un campo, su requisito declarado antes del intento, y un botón | [38–81](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L38-L81) |
+| **en qué estados puede quedar** | El bloque de estados: *enviando*, *con datos*, *vacío* | [87–110](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L87-L110) |
+| | …y el cuarto, que va aparte porque interrumpe: *error de entrada* | [29–36](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L29-L36) |
+
+Fijate en el tercer renglón: **los estados no están dispersos, están juntos y son
+excluyentes**. Ese `@if / else if / else` es la definición hecha código —«en qué estados
+puede quedar»— y por eso se puede leer los tres de un vistazo.
+
+Y fijate en el comentario de la línea [83–85](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L83-L85):
+
+> *«La superficie tiene tres estados de presentación, y cada uno es un bloque. El estado
+> `Indisponible` no aplica: la frase no viaja a ningún servicio externo, así que no hay
+> servicio que pueda no responder.»*
+
+**Ahí se ve la superficie razonando sobre sí misma.** El vocabulario de estados es común
+a todo el proyecto, y esta superficie declara cuál de ellos no le corresponde **y por
+qué**. Sin esa línea, la ausencia de un estado de indisponibilidad se leería como
+olvido — el mismo criterio de la §6, aplicado al marcado en vez de a la prueba.
+
+#### Lo que la definición excluye, en este mismo archivo
+
+| No es superficie | Qué es | Dónde se ve |
+| --- | --- | --- |
+| `Banda`, `EstadoVacio`, `Esqueleto`, `Icono` | **Componentes**: piezas reutilizables. Aparecen en muchas superficies y ninguno promete nada por sí solo | [33](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L33), [90](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L90), [107](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L107) |
+| `MainLayout`, `BarraLateral` | **Chrome**: el marco de navegación. Está presente, pero no es lo que la pantalla promete | fuera del archivo |
+| `@page "/HolaMundo"` | **Una ruta**: dónde vive. Casi siempre hay una por superficie, pero es una coincidencia frecuente, no una regla | [1](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L1) |
+
+La última fila importa más de lo que parece, y es la que responde a «parto de una
+pantalla, ¿es una página?»:
+
+- Un **modal de confirmación** es una superficie —promete «confirmo y se borra»— y **no
+  tiene ruta propia**.
+- Una ruta con **pestañas** que muestran cosas sin relación entre sí son **varias
+  superficies** en una sola dirección.
+- Un **asistente de cuatro pasos** son cuatro superficies y un recorrido, aunque la
+  barra del navegador no cambie nunca.
+
+#### ¿Cómo sé dónde termina una superficie y empieza otra?
+
+**Respuesta: es el conjunto más chico de marcado que tiene una promesa propia,
+verificable de punta a punta.**
+
+La prueba de corte: **partila en dos y mirá si alguna mitad sigue prometiendo algo.**
+
+| | |
+| --- | --- |
+| ✅ | El formulario y el bloque de estados **son una sola superficie**: separados, ninguno promete nada —un campo sin desenlace, un desenlace sin causa— |
+| ✅ | El modal de baja **es una superficie aparte** de la lista que lo abre: promete algo propio, «confirmo y desaparece» |
+| ❌ | La barra lateral **no es** una superficie: no hay nada que se pueda afirmar de ella de punta a punta |
+
+#### ¿Cómo se relaciona con las historias, los casos de uso y las maquetas?
+
+**Respuesta: cada uno aporta una parte distinta, y ninguno se superpone con la superficie.**
+
+Esta es la pregunta que más ordena, porque los cuatro artefactos hablan de «la pantalla»
+y ninguno habla de lo mismo:
+
+| Artefacto | Qué aporta | Qué **no** aporta |
+| --- | --- | --- |
+| **Historia de usuario** | El *para qué* y a quién le sirve | Los estados, y qué pasa cuando algo sale mal |
+| **Caso de uso** | El *recorrido*: actor, precondición, flujo principal y **flujos alternos** | Dónde empieza y termina cada pantalla |
+| **Maqueta / spec de diseño** | La *forma*: jerarquía visual, densidad, tono | Casi siempre, **todos los estados menos uno** |
+| **Superficie** | El *corte donde la promesa se vuelve observable* | El valor de negocio: eso lo dice la historia |
+
+Y las cardinalidades, que es donde se rompe la intuición de «una historia, una pantalla,
+una prueba»:
+
+| Relación | |
+| --- | --- |
+| Historia ↔ superficie | **muchos a muchos** — una historia cruza varias pantallas, y una pantalla sirve a varias historias |
+| Caso de uso → superficie | **uno a muchos** — un recorrido atraviesa pantallas; por eso un caso de uso **no** es un caso de prueba E2E |
+| Superficie → componente | **uno a muchos**, y al revés también |
+| Superficie → ruta | **casi siempre uno a uno**, y por eso se confunden |
+
+**Qué hacer con cada uno cuando llega el momento de probar:**
+
+1. **De la historia** sale la frase de la §2. Es su mejor uso: la historia ya está escrita
+   desde el lado de la persona, que es justo lo que la Pregunta 1 pide.
+2. **De los flujos alternos del caso de uso** salen los casos que nadie escribe. «¿Qué
+   pasa si el dato no cumple?» es un flujo alterno, y es exactamente el `ErrorDeEntrada`
+   de la línea [29](../src/WebBlazor.E2E.Base.HolaMundo/Components/Paginas/HolaMundo.razor#L29).
+3. **De la maqueta** sale una advertencia, no un caso: **la maqueta suele dibujar un solo
+   estado**, el feliz. Si la lista de estados de la superficie sale de la maqueta, van a
+   faltar el vacío, el de carga y el de error — que son los tres que más se rompen.
+
+> **El resumen:** la historia dice *por qué*, el caso de uso dice *por dónde*, la maqueta
+> dice *cómo se ve*, y la superficie es **el corte donde eso se puede observar y, por lo
+> tanto, probar**. Una prueba E2E no verifica una historia: verifica la promesa de una
+> superficie, y varias de esas juntas sostienen la historia.
 
 ### 1.2 Circuito
 
