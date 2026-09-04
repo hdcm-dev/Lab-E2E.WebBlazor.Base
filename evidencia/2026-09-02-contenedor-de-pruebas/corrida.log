@@ -1,0 +1,27 @@
+# Corrida de la batería HolaMundo dentro del contenedor de pruebas
+# Fecha: 2026-09-02 · scripts/pruebas.sh · REPETIR=8 · aplicación en https://localhost:7071
+# Imagen: lab-e2e-base-dev:net10 (.devcontainer/Dockerfile)
+
+== Compilando ==
+== Certificado de desarrollo ==
+== Levantando la aplicación en https://localhost:7071 ==
+== Corrida 1 de 8 ==
+  Error Message:
+   Microsoft.Playwright.PlaywrightException : Locator expected to have text 'Hola mundo! - que tal?'
+But was: '<element(s) not found>' 
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 6 s - WebBlazor.E2E.Base.HolaMundo.E2ETests.dll (net10.0)
+== Corrida 2 de 8 ==
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 1 s - WebBlazor.E2E.Base.HolaMundo.E2ETests.dll (net10.0)
+== Corrida 3 de 8 ==
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 863 ms - WebBlazor.E2E.Base.HolaMundo.E2ETests.dll (net10.0)
+== Corrida 4 de 8 ==
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 883 ms - WebBlazor.E2E.Base.HolaMundo.E2ETests.dll (net10.0)
+== Corrida 5 de 8 ==
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 853 ms - WebBlazor.E2E.Base.HolaMundo.E2ETests.dll (net10.0)
+== Corrida 6 de 8 ==
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 1 s - WebBlazor.E2E.Base.HolaMundo.E2ETests.dll (net10.0)
+== Corrida 7 de 8 ==
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 907 ms - WebBlazor.E2E.Base.HolaMundo.E2ETests.dll (net10.0)
+== Corrida 8 de 8 ==
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 891 ms - WebBlazor.E2E.Base.HolaMundo.E2ETests.dll (net10.0)
+== Resumen: 1 de 8 corridas en rojo ==
