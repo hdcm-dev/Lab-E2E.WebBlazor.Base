@@ -9,6 +9,17 @@ determinada. Este archivo arranca el 2026-09-03; lo anterior se lee en el histor
 
 ## [Sin publicar] - 2026-09-04
 
+### Cambiado
+
+- **Los dos documentos de caso pasan a exponerse por preguntas.** Cada criterio abre con la
+  pregunta que alguien realmente se hace —«¿Y si igual hago clic antes de tiempo?»—, sigue con la
+  respuesta en una línea y cierra con ejemplos contrastados. Un ejemplo correcto aislado no enseña
+  dónde está el límite; el par ✅/❌ sí, y el ⚠️ intermedio cubre el caso *cierto pero insuficiente*,
+  que es el que más se repite en la práctica. `Caso-HolaMundo-Page.MD` suma además §2.2 —las cinco
+  preguntas que se le hacen a una promesa—, §2.3 y §2.4 —seis superficies que las pasan y seis que
+  no, cada una con qué falla y qué hacer— y §4.5 —cuándo hace falta un testigo y cuándo no, porque
+  `InteractiveServer` no lo implica por sí solo—.
+
 ### Añadido
 
 - **`tests/WebBlazor.E2E.Base.Login.E2ETests/LoginE2ETests.cs`** — nueve casos sobre la superficie

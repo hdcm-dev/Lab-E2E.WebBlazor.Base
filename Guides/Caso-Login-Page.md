@@ -51,6 +51,11 @@ entrada cae en el mensaje genérico, nunca en el código crudo ni en la traza.
 La segunda mitad de esa frase es lo interesante. Esta superficie no promete solo un
 comportamiento: promete **un silencio**. Y un silencio también se prueba.
 
+> Cómo se llega a una frase así —y cómo se sabe si la que escribiste sirve— está en
+> [§2 del caso Hola Mundo](Caso-HolaMundo-Page.MD#2-que-promete-esta-superficie):
+> las cinco preguntas y los ejemplos de superficies que no la pasan. Es criterio
+> compartido y no se repite acá.
+
 ---
 
 ## 3. La diferencia que ordena todo el resto
@@ -58,14 +63,20 @@ comportamiento: promete **un silencio**. Y un silencio también se prueba.
 Esta superficie **no lleva `@rendermode`**. Es SSR estático, y su formulario viaja por
 POST a un endpoint.
 
-### 3.1 Por qué está construida así
+### 3.1 ¿Por qué no es interactiva? ¿Es una preferencia de estilo?
 
-No es una preferencia de estilo. La credencial de sesión se emite **en el ciclo de
-request**: con el circuito ya establecido, la respuesta HTTP ya se envió y **no hay
-dónde escribir la cabecera que crea la cookie**. Un ingreso interactivo, en Blazor
-Server, no puede funcionar.
+**Respuesta: no. Es que un ingreso interactivo, en Blazor Server, no puede funcionar.**
 
-### 3.2 Qué consecuencia tiene para la prueba
+La credencial de sesión se emite **en el ciclo de request**. Con el circuito ya
+establecido, la respuesta HTTP ya se envió, y entonces **no hay dónde escribir la
+cabecera que crea la cookie**.
+
+**La lección general:** cuando una superficie está construida de una forma que parece
+anticuada, la primera pregunta no es «¿la modernizo?» sino «¿qué restricción la puso
+así?». Acá la restricción es del protocolo, y ninguna cantidad de interactividad la
+levanta.
+
+### 3.2 ¿Qué consecuencia tiene para la prueba?
 
 **No hay ventana de hidratación, así que no hay testigo que esperar.**
 
@@ -90,10 +101,9 @@ cubren por sí solas—.
 
 ## 4. Los criterios de diseño de estos casos
 
-### 4.1 Se afirma lo que la persona ve, nunca el mecanismo
+### 4.1 ¿Cómo compruebo que la sesión existe?
 
-**La prueba no mira la cookie.** Que la sesión exista se comprueba por su efecto:
-poder ver la superficie protegida.
+**Respuesta: por su efecto —poder ver lo protegido—, nunca leyendo la cookie.**
 
 ```csharp
 // Así:
@@ -114,7 +124,9 @@ problema de fondo es anterior: **una prueba que fabrica su propio estado deja de
 probar el camino por el que la persona pasa**. Aun si la cookie hubiese funcionado, el
 circuito de ingreso habría quedado sin probar.
 
-### 4.2 Se ingresa por la superficie, no por atajos
+### 4.2 ¿Dónde va el «ingresar» que todos los casos necesitan?
+
+**Respuesta: en la base, y solo porque no dice nada sobre ningún caso en particular.**
 
 ```csharp
 protected async Task IngresarAsync(string? identificador = null, string? secreto = null)
@@ -133,9 +145,11 @@ Los parámetros son opcionales a propósito: quien llama sin argumentos dice «u
 credencial válida, no me importa cuál»; quien pasa uno dice «esta credencial es
 parte de lo que estoy probando». La firma del método distingue el trámite del caso.
 
-### 4.3 El estado del que se parte es *sin sesión*
+### 4.3 ¿De qué estado parten estos casos?
 
-Y por eso el `[SetUp]` casi no hace nada:
+**Respuesta: de *sin sesión*, que es con lo que arranca todo contexto nuevo.**
+
+Por eso el `[SetUp]` casi no hace nada:
 
 ```csharp
 // El estado conocido del que parten estos casos es *sin sesión*, que es con lo
@@ -149,13 +163,20 @@ almacenamiento nuevos. El aislamiento no hay que construirlo: viene puesto. Lo q
 hay que hacer es **no romperlo**, y es lo que se rompe cuando se comparte sesión entre
 casos para que corran más rápido.
 
-### 4.4 Una propiedad negativa se prueba comparando, no mirando
+### 4.4 ¿Cómo se prueba que algo *no* se puede deducir?
+
+**Respuesta: provocando dos desenlaces distintos y afirmando que son indistinguibles.**
 
 El rechazo indiferenciado (§1.3) es una promesa de las difíciles: no dice qué debe
 pasar, dice qué **no** debe poder deducirse. Mirando un solo desenlace no se ve nada.
 
-La forma de probarla es **provocar dos fracasos distintos y comprobar que son
-indistinguibles**:
+| | |
+| --- | --- |
+| ❌ | «Con un usuario inexistente, el mensaje dice *No pudimos validar el ingreso*» |
+| ✅ | «Con un usuario inexistente y con un secreto incorrecto, el mensaje es **el mismo**» |
+
+La primera pasa aunque el sistema filtre información —basta con que uno de los dos
+mensajes sea ese—. Solo la segunda puede detectar la fuga.
 
 ```csharp
 [Test]
@@ -177,7 +198,9 @@ Notá que **no se compara contra un texto literal**. Se comparan los dos desenla
 entre sí. Si mañana el mensaje cambia, este caso sigue siendo válido: lo que afirma no
 es *qué* dice, sino que **dice lo mismo en los dos casos**.
 
-### 4.5 Se afirma la promesa, no el detalle reversible
+### 4.5 ¿Cuánto detalle se afirma?
+
+**Respuesta: lo que tendría que fallar con razón. Lo reversible se deja suelto.**
 
 ```csharp
 [Test]
@@ -201,10 +224,12 @@ alguien puede cambiar mañana con toda razón, y no debería poner una prueba en
 para que este caso falle *con razón*. Si la respuesta incluye un cambio inocente,
 estás afirmando de más.
 
-### 4.6 Cada caso falla por un motivo
+### 4.6 ¿Cuándo un caso es en realidad dos?
+
+**Respuesta: cuando puede fallar por dos motivos y el reporte no dice cuál.**
 
 Un caso que verifica el rebote del guard **y además** que después se llega al destino
-falla por dos causas distintas, y el reporte no dice cuál. Se parten:
+falla por dos causas distintas. Se parten:
 
 ```csharp
 [Test] public async Task LaSuperficieProtegidaExigeSesion() { ... }  // el rebote ocurre
@@ -230,10 +255,12 @@ Diez casos, y cada uno cubre un tramo distinto del circuito.
 | 9 | `CerrarLaSesionRevocaElPaso` | La salida surte efecto |
 | 10 | `MostrarMensaje` *(en `HolaMundoE2ETest`)* | La superficie protegida funciona una vez adentro |
 
-### 5.1 Cómo se eligieron
+### 5.1 ¿De dónde salieron estos diez y no otros?
 
-No por cobertura de líneas. Cada uno sale de **una frase que la superficie promete**,
-y el conjunto se cierra cuando ninguna promesa queda sin caso. Las promesas están en
+**Respuesta: de las promesas, no de la cobertura de líneas.**
+
+Cada caso sale de **una frase que la superficie promete**, y el conjunto se cierra
+cuando ninguna promesa queda sin caso. Las promesas están en
 el marcado y en los comentarios de diseño del `src`: `Ingreso.razor` dice que el
 rechazo es indiferenciado, `IdentidadEndpoints.cs` dice que solo se admiten rutas
 locales. **Cada una de esas afirmaciones es un caso esperando a ser escrito.**
@@ -270,6 +297,15 @@ comportamiento es una decisión de diseño, y no la toma la prueba**. Queda anot
 
 ## 7. Lo que estos casos deliberadamente no prueban
 
+### ¿Por qué una superficie de seguridad tiene tan pocas pruebas de seguridad?
+
+**Respuesta: porque casi nada de la postura de seguridad se verifica desde un navegador.**
+
+Es la confusión más frecuente en esta superficie: como el tema es la identidad, se
+espera que la prueba E2E cubra el tema. Pero la E2E solo alcanza **lo que se observa
+por la interfaz**. Lo demás se verifica leyendo la configuración, o con otras
+herramientas, o no se verifica porque no existe.
+
 | No se prueba | Por qué |
 | --- | --- |
 | El **token antifalsificación** | Es una defensa del servidor. Se prueba desde afuera del navegador, no manejándolo. |
@@ -289,6 +325,8 @@ REPETIR=8 scripts/pruebas.sh login
 ---
 
 ## 9. Los criterios, en una lista
+
+Cada uno es la respuesta corta a la pregunta que lo abre, arriba.
 
 1. **Afirmá el efecto, no el mecanismo.** La cookie es cómo; la superficie visible es qué.
 2. **Nunca fabriques el estado que la prueba debería obtener actuando.**

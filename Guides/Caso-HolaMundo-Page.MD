@@ -8,6 +8,20 @@ Este documento no explica *cómo se escribe* una prueba con Playwright —eso es
 [`E2E-Guides.md`](E2E-Guides.md)—, sino **cómo se decide qué probar** en una
 superficie como esta, y por qué el caso quedó como quedó.
 
+## Índice
+
+- **[1. Definiciones](#1-definiciones)**
+- **[2. Qué promete esta superficie](#2-que-promete-esta-superficie)** — las cinco preguntas
+  que se le hacen a una promesa, y doce superficies de ejemplo. Es la parte que **no depende
+  de este proyecto**: sirve para cualquier pantalla.
+- **[3. Los criterios de diseño del caso](#3-los-criterios-de-diseno-del-caso)**
+- **[4. El criterio propio de una superficie interactiva](#4-el-criterio-propio-de-una-superficie-interactiva)** — el testigo de hidratación, y cuándo hace falta
+- **[5. El caso, entero](#5-el-caso-entero)**
+- **[6. Lo que este caso deliberadamente no prueba](#6-lo-que-este-caso-deliberadamente-no-prueba)**
+- **[7. Cómo se corre](#7-como-se-corre)**
+- **[8. El criterio, en una línea](#8-el-criterio-en-una-linea)**
+- **[9. Y en la superficie de al lado](#9-y-en-la-superficie-de-al-lado)**
+
 ---
 
 ## 1. Definiciones
@@ -51,17 +65,271 @@ Eso es todo. La superficie no consulta ningún servicio, no persiste nada y no n
 a ningún lado. Es deliberadamente pobre: existe para que el andamiaje de la prueba se
 vea sin ruido alrededor.
 
+### 2.1 Por qué la frase va primero
+
+Porque **la prueba no inventa qué verificar: lo copia de la promesa**. Un caso E2E es
+la frase escrita en código. Si la frase no existe, lo que se escribe no es una prueba
+sino una descripción de lo que el código ya hace —y una descripción nunca encuentra un
+error, porque cambia junto con lo que describe—.
+
+Y hay un efecto lateral que es el más valioso de todo esto:
+
+> **Si no podés escribir la frase, el problema casi nunca es de la prueba. Es del
+> diseño.** La superficie está haciendo demasiadas cosas, o todavía no se decidió qué
+> hace. La prueba es el primer lugar donde eso se nota.
+
+### 2.2 Cinco preguntas para saber si la frase sirve
+
+No hay que responderlas por escrito cada vez. Al principio se responden a mano; después
+se responden solas.
+
+---
+
+#### Pregunta 1 — ¿Quién es el sujeto de la frase?
+
+**Respuesta: la persona. Nunca el sistema.**
+
+| | |
+| --- | --- |
+| ✅ | «**Escribo** una frase y aparece» |
+| ❌ | «El componente **enlaza** el input al modelo y **renderiza** el mensaje» |
+
+La segunda no está mal escrita: está escrita desde adentro. Y una promesa hecha desde
+adentro solo se puede verificar desde adentro —mirando el modelo, contando renders—,
+que es exactamente lo que una prueba E2E no hace.
+
+**Regla práctica:** si la frase menciona una clase, un método o un evento del framework,
+está escrita desde el lado equivocado.
+
+---
+
+#### Pregunta 2 — ¿Se puede verificar mirando la pantalla?
+
+**Respuesta: si hace falta un depurador, la frase no sirve.**
+
+| | |
+| --- | --- |
+| ✅ | «La frase aparece» — se ve |
+| ❌ | «La frase queda guardada en el modelo» — no se ve |
+| ❌ | «El estado pasa a `ConDatos`» — no se ve |
+
+`ConDatos` es un nombre interno. Lo que la persona percibe es que *apareció una tarjeta
+con la frase adentro*. Que eso se implemente con un `enum` de tres valores es una
+decisión reversible, y una prueba no debería atarse a decisiones reversibles.
+
+---
+
+#### Pregunta 3 — ¿Cuántos «y» tiene la frase?
+
+**Respuesta: cada «y» que une dos cosas independientes es otra promesa, y otro caso.**
+
+> ❌ «Escribo una frase **y** la muestro **y** queda en el historial **y** puedo
+> exportarla»
+
+Eso no es una promesa: es un inventario. Un caso que verifique las cuatro cosas falla
+por cuatro motivos distintos, y el reporte no dice cuál —el problema que la §4.6 del
+[caso de acceso](Caso-Login-Page.md) trata aparte—.
+
+**Cuidado con el falso positivo:** una superficie **puede** tener varias promesas, una
+por cada acción que ofrece. Eso está bien y es lo normal. Lo que no puede tener es
+**ninguna**, ni una tan ancha que abarque todo lo que la pantalla hace.
+
+El «y» que sí está bien es el que describe **un solo recorrido**: «escribo una frase
+**y** aparece» es una sola promesa, porque la segunda mitad es la consecuencia de la
+primera, no otra cosa.
+
+---
+
+#### Pregunta 4 — ¿Sobreviviría a un cambio de implementación?
+
+**Respuesta: tiene que sobrevivir. Si no, está describiendo el cómo.**
+
+Probá la frase contra un cambio hipotético:
+
+| Cambio | «Escribo una frase y aparece» |
+| --- | --- |
+| La frase pasa a guardarse en una base de datos | **sigue siendo cierta** |
+| El botón cambia de color, de texto o de lugar | **sigue siendo cierta** |
+| La superficie migra a `InteractiveWebAssembly` | **sigue siendo cierta** |
+| El mensaje deja de aparecer | **se vuelve falsa** ← lo que la prueba debe detectar |
+
+Solo la última fila debería poner el caso en rojo. Si algún cambio inocente lo pone en
+rojo, la frase está afirmando de más.
+
+---
+
+#### Pregunta 5 — ¿Qué tendría que pasar para que la frase sea falsa?
+
+**Respuesta: si no lo podés contestar en una línea, no es una promesa. Es un eslogan.**
+
+| | |
+| --- | --- |
+| ✅ | «La frase aparece» → *es falsa si no aparece*. Verificable. |
+| ❌ | «La superficie es intuitiva» → ¿falsa cuándo? |
+| ❌ | «Muestra la información del cliente» → ¿cuál información? ¿comparada contra qué? |
+
+La segunda no es verificable **por naturaleza**: se evalúa con personas, no con
+Playwright. La tercera sí es verificable, pero **todavía no**: le falta decidir cosas.
+Son dos fracasos distintos y se resuelven distinto —una se acepta como no automatizable,
+la otra se termina de diseñar—.
+
+---
+
+### 2.3 Superficies que pasan las cinco preguntas
+
+Ejemplos breves, con su frase al lado. Ninguno es de este laboratorio salvo los dos
+primeros: la idea es que se vea que el criterio no depende de este proyecto.
+
+| Superficie | Su frase | Por qué funciona |
+| --- | --- | --- |
+| **Hola Mundo** *(la de acá)* | «Escribo una frase y aparece» | Una acción, un desenlace visible |
+| **Acceso** *(la de al lado)* | «Con la credencial correcta se pasa; sin ella no, y lo que se dice no le enseña nada a quien prueba suerte» | Dos promesas, y **la segunda es una promesa negativa**: se prueba comparando dos rechazos entre sí |
+| **Buscador de socios** | «Escribo un apellido y veo solo los socios que coinciden» | El «solo» es lo que la hace verificable: acota el desenlace en vez de describirlo |
+| **Alta de un socio** | «Cargo los datos obligatorios y el socio queda dado de alta» | Se verifica buscándolo después: el efecto se observa desde afuera |
+| **Confirmación de baja** | «Pido dar de baja, confirmo, y el socio deja de aparecer en la lista» | Un recorrido de tres pasos, pero **un solo desenlace** |
+| **Detalle de una factura** | «Abro una factura y veo su número, su fecha y su total» | Es una superficie de solo lectura, y su promesa también: no hay acción, hay presencia |
+
+Fijate que ninguna dice *cómo*. «El socio queda dado de alta» no dice si es un `INSERT`,
+una cola de mensajes o un archivo.
+
+---
+
+### 2.4 Superficies que no la pasan — y qué hacer con cada una
+
+Este es el cuadro más útil, porque casi todo lo que uno se encuentra cae acá.
+
+#### a. El tablero de inicio
+
+> «Muestra el resumen del día»
+
+**Qué falla:** la Pregunta 3. No hay una frase: hay ocho, una por cada panel —los
+turnos de hoy, la recaudación, las alertas, el gráfico—.
+
+**Qué hacer:** no se prueba «el tablero». Se prueba **un panel por caso**, cada uno con
+su frase: «con tres turnos cargados para hoy, el panel de turnos dice 3». El tablero
+como conjunto queda para una verificación visual, que es otra herramienta.
+
+---
+
+#### b. La pantalla de configuración
+
+> «Guardo los cambios y quedan guardados»
+
+**Qué falla:** la Pregunta 5, de forma sutil. La frase *parece* verificable, pero es una
+promesa **sobre el mecanismo de guardado**, no sobre ningún efecto. Que treinta opciones
+«queden guardadas» no dice qué cambia en ninguna parte.
+
+**Qué hacer:** buscar el efecto de cada opción. «Apago las notificaciones por correo y
+al dar de alta un socio no sale ningún correo» es una frase verificable; «la opción
+quedó guardada» no lo es. Y quedará claro que no hay treinta casos que valga la pena
+escribir, sino dos o tres.
+
+---
+
+#### c. El asistente de varios pasos
+
+> «Completo el alta en cuatro pasos»
+
+**Qué falla:** ninguna pregunta, en realidad. Falla el **encuadre**: eso no es una
+superficie, es un **recorrido** que cruza cuatro superficies.
+
+**Qué hacer:** las dos cosas, y por separado. Cada paso tiene su promesa —«sin el
+documento no me deja avanzar»— y el recorrido completo tiene la suya —«completo los
+cuatro pasos y el socio queda dado de alta»—. Un solo caso largo que haga las dos cosas
+es el que después nadie sabe por qué falló.
+
+---
+
+#### d. La pantalla que depende de datos vivos
+
+> «Muestra las cotizaciones del día»
+
+**Qué falla:** la Pregunta 5. Es falsa… ¿cuándo? No hay contra qué comparar: el
+desenlace correcto cambia cada minuto.
+
+**Qué hacer:** separar lo que es de la superficie de lo que es del dato. La superficie
+promete «pido las cotizaciones y las veo, o me entero de que no se pudo». Eso sí se
+prueba —incluido el estado de error, que suele ser el que nunca se prueba—. La
+exactitud del número es otra cosa y no se verifica desde el navegador.
+
+---
+
+#### e. La pantalla de administración que hace de todo
+
+> «Administra los socios»
+
+**Qué falla:** las Preguntas 3 y 5 a la vez. «Administrar» es un verbo paraguas: adentro
+hay listar, filtrar, dar de alta, editar, dar de baja y exportar.
+
+**Qué hacer:** una frase por acción, y **aceptar que son seis grupos de casos**. Esto
+suele destapar además un problema de diseño real: una pantalla que hace seis cosas
+distintas casi siempre debería ser más de una pantalla.
+
+---
+
+#### f. La pantalla que todavía no se decidió
+
+> «Muestra la información relevante del cliente»
+
+**Qué falla:** la Pregunta 5. Y es el caso más importante de los seis, porque **acá la
+prueba no es la que tiene el problema**.
+
+**Qué hacer:** no escribir la prueba. Ir a preguntar qué información, en qué orden, y
+qué se muestra cuando no hay ninguna. Una frase vaga es el síntoma de un diseño sin
+cerrar, y escribir igual el caso solo consigue **fijar en código una decisión que nadie
+tomó**.
+
+---
+
+### 2.5 El resumen
+
+| Si la frase… | El problema es | Se resuelve |
+| --- | --- | --- |
+| habla del sistema y no de la persona | de **encuadre** | reescribiéndola desde afuera |
+| necesita un depurador para verificarse | de **encuadre** | buscando el efecto visible |
+| tiene varios «y» independientes | de **alcance** | partiéndola en varios casos |
+| se rompe con un cambio inocente | de **altitud** | afirmando menos |
+| no se puede contradecir | de **diseño** | terminando de diseñar, no de probar |
+
+Y el criterio que los engloba a los cinco:
+
+> **Una promesa se escribe desde el lado de quien la recibe, y tiene que poder ser
+> falsa.**
+
 ---
 
 ## 3. Los criterios de diseño del caso
 
-### 3.1 Se prueba la promesa, no la implementación
+Ya está la frase. Ahora hay cuatro decisiones que tomar, y cada una se toma
+respondiendo una pregunta.
 
-La prueba escribe, acciona y verifica **lo que la persona vería**. No inspecciona el
-campo privado `_mensaje`, no cuenta renders, no mide el circuito. Si mañana la frase
-se guardara en una base de datos, la prueba no debería enterarse: la promesa no cambió.
+---
 
-### 3.2 El caso tiene tres partes, y una es el punto de partida
+### 3.1 ¿Qué se mira para saber si la superficie cumplió?
+
+**Respuesta: lo que la persona vería. Nada de lo que hay detrás.**
+
+La prueba escribe, acciona y verifica desde afuera. No inspecciona el campo privado
+`_mensaje`, no cuenta renders, no mide el circuito.
+
+| | |
+| --- | --- |
+| ✅ | `Expect(Page.GetByTestId("campo-mensaje")).ToHaveTextAsync(frase)` |
+| ❌ | Leer el modelo, contar invocaciones a `StateHasChanged`, mirar la cookie |
+
+**Por qué:** lo de la derecha ata la prueba a la implementación, y entonces cambiar la
+implementación —sin romper nada— pone la prueba en rojo. Si mañana la frase se guardara
+en una base de datos, la prueba no debería enterarse: la promesa no cambió.
+
+**Cómo se comprueba:** tapate el código del `src` y preguntate si el caso sigue
+teniendo sentido. Si para entenderlo hace falta abrir el componente, está mirando
+adentro.
+
+---
+
+### 3.2 ¿Desde dónde parte el caso?
+
+**Respuesta: de un estado conocido, y declararlo es parte del caso —no un trámite—.**
 
 | Parte | Dónde va | Qué hace |
 | --- | --- | --- |
@@ -69,24 +337,64 @@ se guardara en una base de datos, la prueba no debería enterarse: la promesa no
 | **Actuar** | `[Test]` | Hace la acción que la superficie ofrece |
 | **Verificar** | `[Test]` | Afirma el desenlace observable |
 
-El `[SetUp]` no es un trámite. Es la parte que declara *desde dónde* parte el caso, y
-cuando esa declaración es floja, la prueba se vuelve intermitente.
+**Por qué importa tanto la primera:** casi todas las pruebas intermitentes son pruebas
+cuyo punto de partida estaba mal declarado. La de esta superficie lo fue —§4—: el
+`[SetUp]` decía «la pantalla está abierta» cuando lo que hacía falta era «la pantalla
+está **viva**».
 
-### 3.3 Un identificador por control que la prueba toca
+| | |
+| --- | --- |
+| ✅ | «Abierta la pantalla y con el circuito ya establecido» |
+| ⚠️ | «Abierta la pantalla» — cierto, pero insuficiente |
+| ❌ | «Abierta la pantalla, y además ya escribí la frase» — eso ya es actuar |
 
-Y solo por esos. Un `data-testid` en cada elemento sería ruido; los tres que hay
-—`campo-frase`, `boton-mostrar-frase`, `campo-mensaje`— son exactamente los que el
-caso necesita nombrar.
+La tercera es el error opuesto y también es común: cuando el `[SetUp]` empieza a hacer
+la acción, el `[Test]` se queda sin nada que probar.
 
-### 3.4 El elemento verificado contiene el mensaje y nada más
+---
+
+### 3.3 ¿A qué elementos les pongo `data-testid`?
+
+**Respuesta: solo a los que la prueba toca. Ni uno más.**
+
+Los tres de esta superficie —`campo-frase`, `boton-mostrar-frase`, `campo-mensaje`— son
+exactamente los que el caso necesita nombrar.
+
+| | |
+| --- | --- |
+| ✅ | El campo que se llena, el botón que se acciona, el elemento que se verifica |
+| ❌ | Un `data-testid` en cada `div`, «por las dudas» |
+| ❌ | Ninguno, y localizar por `.mq-input:first-child` |
+
+**Por qué no todos:** un identificador es una promesa de estabilidad. Poner treinta es
+comprometerse a mantener treinta nombres que nadie usa, y el día que alguien reordene
+el marcado no va a saber cuáles importan.
+
+**Por qué no ninguno:** localizar por clase o por posición ata la prueba a decisiones de
+presentación, que cambian sin aviso y sin que nadie piense que rompió algo.
+
+---
+
+### 3.4 ¿Contra qué se compara?
+
+**Respuesta: contra un elemento que contiene lo verificado y nada más.**
 
 ```razor
 <p class="mq-kv__valor mq-mt-2" data-testid="campo-mensaje">@_mensaje</p>
 ```
 
-Si ese `<p>` tuviera además un rótulo o un ícono adentro, `ToHaveTextAsync` obligaría
-a comparar contra un texto compuesto, y la aserción empezaría a depender de la
-maqueta. Se mantiene atómico **para que la comparación pueda ser exacta**.
+| | |
+| --- | --- |
+| ✅ | `<p data-testid="campo-mensaje">@_mensaje</p>` |
+| ❌ | `<p data-testid="campo-mensaje"><b>Frase:</b> @_mensaje <Icono /></p>` |
+
+**Por qué:** con la segunda forma, `ToHaveTextAsync` obliga a comparar contra un texto
+compuesto —`"Frase: Hola mundo!"`—, y la aserción empieza a depender de la maqueta. El
+día que alguien cambie el rótulo, la prueba falla sin que la promesa se haya roto.
+
+**La salida cuando no se puede:** si el elemento no puede ser atómico, se usa
+`ToContainTextAsync` y se afirma menos. Es peor —deja pasar un texto de más— pero es
+honesto. Lo que no se hace es escribir en la prueba el texto compuesto completo.
 
 ---
 
@@ -95,9 +403,11 @@ maqueta. Se mantiene atómico **para que la comparación pueda ser exacta**.
 Este es el criterio que distingue a esta superficie de una estática, y es el único
 verdaderamente difícil.
 
-### 4.1 El problema: la superficie llega dos veces
+### 4.1 ¿Por qué una pantalla que se ve lista puede no estarlo?
 
-Una superficie `InteractiveServer` no llega terminada. Llega **dos veces**:
+**Respuesta: porque llega dos veces, y las dos veces se ve igual.**
+
+Una superficie `InteractiveServer` no llega terminada:
 
 | Momento | Qué hay | Qué se ve |
 | --- | --- | --- |
@@ -109,10 +419,12 @@ Se ven **idénticas**. Y entre una y otra pasan decenas o cientos de milisegundo
 Eso segundo es *hidratar*: el HTML llega deshidratado —con la forma correcta pero sin
 nada corriendo adentro— y el circuito lo rehidrata.
 
-### 4.2 Por qué eso rompe la prueba
+### 4.2 ¿Por qué Playwright no lo detecta solo?
 
-Playwright, antes de cada clic, verifica cuatro cosas: que el elemento **exista**, sea
-**visible**, esté **habilitado** y esté **quieto**. Si algo falta, espera y reintenta.
+**Respuesta: porque sus cuatro comprobaciones se cumplen igual en la ventana muerta.**
+
+Antes de cada clic verifica que el elemento **exista**, sea **visible**, esté
+**habilitado** y esté **quieto**. Si algo falta, espera y reintenta.
 
 **En la ventana entre los dos momentos, las cuatro condiciones se cumplen.** El botón
 está ahí, se ve, no está `disabled`, no se mueve. Playwright hace clic, nadie lo
@@ -131,7 +443,9 @@ hace clic en cuanto puede.
 > intermitencia con ese mismo mensaje: **1 de 8 corridas en rojo**, y la que fallaba
 > era siempre la primera —la que paga el arranque frío y estira la ventana—.
 
-### 4.3 La solución: el testigo
+### 4.3 ¿Cómo se le pregunta a la superficie si ya está viva?
+
+**Respuesta: no se le pregunta. Se hace que ella lo declare.**
 
 > **Testigo:** un elemento del marcado cuyo único trabajo es **afirmar en el DOM un
 > hecho que la prueba no puede deducir mirando la pantalla**.
@@ -184,12 +498,36 @@ await Expect(Page.GetByTestId("estado-app"))
 espera con una condición explícita, y si algo se rompe de verdad, el error nombra el
 problema real.
 
-### 4.4 El agravante de este caso concreto
+### 4.4 ¿Y si igual hago clic antes de tiempo?
+
+**Respuesta: no es que «no pasa nada». Pasa otra cosa.**
 
 El botón es `type="submit"` dentro de un `<EditForm FormName="frase">`. Sin hidratar,
 el clic **no es inerte**: dispara el envío HTML de toda la vida, la página se recarga
-entera y el resultado difiere del esperado. No es que «no pasa nada»; es que pasa
-otra cosa.
+entera y el resultado difiere del esperado.
+
+| | Qué se espera | Qué ocurre |
+| --- | --- | --- |
+| Con circuito | El `@onclick` corre en el servidor y actualiza la superficie | ✅ |
+| Sin circuito | — | El navegador postea el `<form>` y recarga la página |
+
+**Por qué eso empeora el diagnóstico:** un clic inerte deja la pantalla como estaba, y
+eso al menos se parece a lo que pasó. Un clic que recarga la página deja la pantalla
+en un estado *plausible pero distinto*, y ahí el error puede aparecer en cualquier lado.
+
+### 4.5 ¿Cuándo hace falta un testigo, entonces?
+
+**Respuesta: cuando la prueba necesita saber algo que la pantalla no muestra.**
+
+| Situación | ¿Testigo? | Por qué |
+| --- | --- | --- |
+| La superficie abre circuito y la prueba la acciona | **Sí** | La ventana muerta existe |
+| La superficie es SSR y su form viaja por POST | No | No hay ventana; el envío es una navegación |
+| La superficie es interactiva pero la prueba solo *lee* | No | Leer no depende de los manejadores |
+| La prueba espera un dato que llega de un servicio lento | Depende | Si hay un estado visible de carga, se espera eso; si no, testigo |
+
+La tercera fila es la que más se confunde: **`InteractiveServer` no implica testigo por
+sí solo**. Lo que lo implica es *actuar* sobre la superficie.
 
 ---
 
@@ -229,7 +567,23 @@ public class HolaMundoE2ETests : PageTest
 
 ## 6. Lo que este caso deliberadamente no prueba
 
-Declararlo importa: una ausencia sin explicar se lee como olvido.
+### ¿Cómo sé si una ausencia es una decisión o un olvido?
+
+**Respuesta: por si está escrita. Una ausencia sin explicar se lee como olvido, y con
+razón.**
+
+Y no todas las ausencias son iguales. Conviene distinguir tres, porque se resuelven
+distinto:
+
+| Tipo | Significa | Qué hacer |
+| --- | --- | --- |
+| **Pendiente** | Debería probarse y todavía no se hizo | Anotarlo, y que quede como deuda |
+| **No aplica** | La situación no puede ocurrir en esta superficie | Explicar por qué no puede |
+| **Otra herramienta** | Se verifica, pero no acá | Decir con qué se verifica |
+
+Confundir «no aplica» con «pendiente» es lo que hace que una lista de deudas crezca con
+cosas que nunca hubo que hacer. Y al revés: llamar «no aplica» a un pendiente es la
+forma educada de barrerlo abajo de la alfombra.
 
 | No se prueba | Por qué |
 | --- | --- |
